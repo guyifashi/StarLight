@@ -1132,7 +1132,7 @@
             { id: 'self_math', group: 'selfstudy', title: '自学拓展 · 数学', desc: '思维拓展题 / 算力微练 / 新课预习', points: 2, icon: '🧮', color: 'sky' },
             { id: 'self_chinese', group: 'selfstudy', title: '自学拓展 · 语文', desc: '古诗文诵读 / 每日好词好句摘抄积累', points: 2, icon: '✒️', color: 'sakura' },
             { id: 'habit_pack', group: 'habit', title: '个人日常好习惯', desc: '书包整理与桌面清空 · 规律起居自律', points: 0.5, icon: '🎒', color: 'mint' },
-            { id: 'bonus_book', group: 'bonus', title: '书籍 · 完整阅读一本书', desc: '读完一本大部头课外书并分享核心情节', points: 15, icon: '📚', color: 'butter', prompt: '📚 写下今天读完的书名吧（选填）：' },
+            { id: 'bonus_book', group: 'bonus', title: '书籍 · 完整阅读一本书', desc: '读完一本大部头课外书并分享核心情节', points: 150, icon: '📚', color: 'butter', prompt: '📚 写下今天读完的书名吧（选填）：' },
             { id: 'bonus_english', group: 'bonus', title: '英语 · 进阶深度挑战', desc: '完成一套高阶同步自测或原版流利复述', points: 15, icon: '🏆', color: 'butter', prompt: '🏆 写下今天完成的英语进阶内容（选填）：' },
             { id: 'bonus_math', group: 'bonus', title: '数学 · 压轴思维攻坚', desc: '独立攻克高难度思维题并给家长讲清思路', points: 15, icon: '🧠', color: 'butter', prompt: '🧠 写下今天攻克的数学难题类型（选填）：' },
             { id: 'bonus_chinese', group: 'bonus', title: '语文 · 深度写作/读书笔记', desc: '自主完成一篇高质量习作或深度读书笔记', points: 15, icon: '📝', color: 'butter', prompt: '📝 写下今天创作的文章题目（选填）：' }
@@ -2352,7 +2352,7 @@
                 { id: 'school', title: '🎒 每日必做 · 校内基础清零', desc: '数学、语文、英语基础项（默认每项 1 分）' },
                 { id: 'selfstudy', title: '📖 每日自学 · 习惯养成', desc: '英语、数学、语文自律拓展（默认每项 2 分）' },
                 { id: 'habit', title: '🌟 个人生活与好习惯', desc: '日常好习惯自律（默认 0.5 分）' },
-                { id: 'bonus', title: '🏆 进阶大挑战 · 额外激励', desc: '书籍、英语、数学、语文高阶突破（默认每项 15 分）' },
+                { id: 'bonus', title: '🏆 进阶大挑战 · 额外激励', desc: '完整读完一本书（默认 150 分）、高阶学科攻坚（默认 15 分）' },
                 { id: 'settle_bonus', title: '⭐ 家长晚间复核 · 专属特权加成', desc: '高效不拖拉早鸟奖与卷面书写工整奖（默认每项 1.5 分）' }
             ];
 
@@ -2383,7 +2383,7 @@
                         '</div>' +
                         '<div class="flex items-center gap-1 shrink-0">' +
                             '<span class="text-xs font-extrabold text-amber-600">+</span>' +
-                            '<input type="number" step="0.5" min="0.5" max="200" id="task-pts-' + item.id + '" data-item-id="' + item.id + '" data-default-pts="' + item.points + '" value="' + val + '" class="w-16 px-2 py-1 text-center font-black text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-200 text-[#2E2545]">' +
+                            '<input type="number" step="0.5" min="0.5" max="500" id="task-pts-' + item.id + '" data-item-id="' + item.id + '" data-default-pts="' + item.points + '" value="' + val + '" class="w-16 px-2 py-1 text-center font-black text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-200 text-[#2E2545]">' +
                             '<span class="text-[10px] font-bold text-[#7E7494]">分</span>' +
                         '</div>' +
                     '</div>';
