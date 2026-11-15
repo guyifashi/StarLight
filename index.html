@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>星光少女成长打卡站 · 每日任务与积分核算</title>
     <link rel=manifest href=/manifest.json>
-    <meta name=theme-color content=#6366f1>
+    <meta id="meta-theme-color" name="theme-color" content="#8B7CF6">
     <link rel=icon type=image/svg+xml href=/icon.svg>
     <link rel=apple-touch-icon href=/icon.svg>
     <meta name=apple-mobile-web-app-title content=星光打卡>
@@ -1166,6 +1166,8 @@
 
         const THEME_PRESETS = {
             girl: {
+                themeColor: '#8B7CF6',
+                themeBg: '#FAF8FF',
                 defaultTitle: '星光少女成长打卡站',
                 avatar: '🦄',
                 subtitle: '· 今日事今日毕，每一份努力都闪闪发光 ✨',
@@ -1173,6 +1175,8 @@
                 confettiColors: ['#A78BFA', '#F472B6', '#34D399', '#FBBF24', '#60A5FA']
             },
             boy: {
+                themeColor: '#0284C7',
+                themeBg: '#F4F9FF',
                 defaultTitle: '星际少年成长打卡站',
                 avatar: '🚀',
                 subtitle: '· 今日事今日毕，每一次探索都充满能量 ⚡',
@@ -1466,6 +1470,13 @@
             const isBoy = themeKey === 'boy';
             document.body.classList.toggle('theme-boy', isBoy);
             const preset = THEME_PRESETS[isBoy ? 'boy' : 'girl'];
+
+            // 动态同步 Safari / 移动端浏览器顶部标题栏与状态栏主题色
+            const targetColor = preset.themeColor || (isBoy ? '#0284C7' : '#8B7CF6');
+            const metaTheme = document.getElementById('meta-theme-color') || document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                metaTheme.setAttribute('content', targetColor);
+            }
 
             const avatarBox = document.getElementById('theme-avatar-box');
             if (avatarBox) avatarBox.textContent = preset.avatar;
