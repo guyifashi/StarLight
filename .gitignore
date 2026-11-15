@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Wrangler & Node
+node_modules/
+.wrangler/
+.env
+.env.local

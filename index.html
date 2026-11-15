@@ -1,0 +1,2730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>星光少女成长打卡站 · 每日任务与积分核算</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: [
+                            'ui-rounded',
+                            '"SF Pro Rounded"',
+                            '"PingFang SC"',
+                            '"Hiragino Sans GB"',
+                            '"Microsoft YaHei UI"',
+                            '"Microsoft YaHei"',
+                            '"Noto Sans SC"',
+                            'system-ui',
+                            '-apple-system',
+                            'sans-serif'
+                        ],
+                        numeric: [
+                            'ui-rounded',
+                            '"SF Pro Rounded"',
+                            'system-ui',
+                            '-apple-system',
+                            '"PingFang SC"',
+                            'sans-serif'
+                        ],
+                    },
+                    colors: {
+                        pastel: {
+                            bg: '#FAF8FF',
+                            surface: '#F5F3FF',
+                            lavender: '#8B7CF6',
+                            lavenderLight: '#EDE9FE',
+                            lavenderDark: '#6D28D9',
+                            mint: '#34D399',
+                            mintLight: '#ECFDF5',
+                            sakura: '#F472B6',
+                            sakuraLight: '#FDF2F8',
+                            sky: '#38BDF8',
+                            skyLight: '#F0F9FF',
+                            butter: '#FBBF24',
+                            butterLight: '#FFFBEB',
+                        }
+                    },
+                    boxShadow: {
+                        'pastel': '0 10px 30px -5px rgba(139, 124, 246, 0.12), 0 4px 12px -2px rgba(139, 124, 246, 0.06)',
+                        'pastel-sm': '0 4px 16px -2px rgba(139, 124, 246, 0.10)',
+                        'pastel-mint': '0 8px 24px -4px rgba(52, 211, 153, 0.18)',
+                        'pastel-butter': '0 8px 24px -4px rgba(251, 191, 36, 0.18)',
+                        'jelly': '0 6px 0 0 #7C3AED',
+                        'jelly-mint': '0 6px 0 0 #10B981',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --theme-bg: #FAF8FF;
+            --theme-dot: #E5DEFF;
+            --theme-primary: #8B7CF6;
+            --theme-primary-dark: #7C3AED;
+            --theme-shadow: rgba(139, 124, 246, 0.14);
+            --theme-border: #EDE9FE;
+            --theme-jelly: #6D28D9;
+        }
+        body.theme-boy {
+            --theme-bg: #F4F9FF;
+            --theme-dot: #CFE5FF;
+            --theme-primary: #3B82F6;
+            --theme-primary-dark: #2563EB;
+            --theme-shadow: rgba(59, 130, 246, 0.14);
+            --theme-border: #DBEAFE;
+            --theme-jelly: #1D4ED8;
+        }
+        body {
+            font-family: ui-rounded, 'SF Pro Rounded', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            background-color: var(--theme-bg);
+            background-image: 
+                radial-gradient(at 12% 10%, rgba(237, 233, 254, 0.85) 0px, transparent 50%),
+                radial-gradient(at 88% 15%, rgba(253, 242, 248, 0.8) 0px, transparent 45%),
+                radial-gradient(at 85% 85%, rgba(236, 253, 245, 0.75) 0px, transparent 50%),
+                radial-gradient(at 15% 80%, rgba(255, 251, 235, 0.75) 0px, transparent 45%),
+                radial-gradient(var(--theme-dot) 1.25px, transparent 1.25px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+            color: #3B3355;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.35s ease;
+        }
+
+        /* 游戏化等宽与平稳数值排版，消除 CountUp 滚动抖动 */
+        .font-numeric,
+        .tabular-nums,
+        #stat-wallet,
+        #stat-pending,
+        #level-xp-text,
+        #must-progress-text,
+        #must-progress-pct,
+        #modal-total-score {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            letter-spacing: -0.015em;
+        }
+        body.theme-boy {
+            background-image: 
+                radial-gradient(at 12% 10%, rgba(219, 234, 254, 0.9) 0px, transparent 50%),
+                radial-gradient(at 88% 15%, rgba(207, 250, 254, 0.8) 0px, transparent 45%),
+                radial-gradient(at 85% 85%, rgba(236, 253, 245, 0.75) 0px, transparent 50%),
+                radial-gradient(at 15% 80%, rgba(254, 249, 195, 0.65) 0px, transparent 45%),
+                radial-gradient(var(--theme-dot) 1.25px, transparent 1.25px);
+            color: #1E293B;
+        }
+        body.theme-boy #hero-card {
+            border-color: rgba(219, 234, 254, 0.95);
+            box-shadow: 0 12px 36px -6px rgba(59, 130, 246, 0.15), 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        body.theme-boy #hero-blob-1 {
+            background-image: linear-gradient(to bottom right, rgba(191, 219, 254, 0.6), rgba(207, 250, 254, 0.45), transparent);
+        }
+        body.theme-boy #hero-top-divider {
+            border-color: rgba(219, 234, 254, 0.85);
+        }
+        body.theme-boy #theme-avatar-box {
+            --tw-ring-color: rgba(191, 219, 254, 0.8);
+        }
+        body.theme-boy #sound-btn,
+        body.theme-boy #settings-top-btn {
+            background-color: rgba(239, 246, 255, 0.9);
+            color: #1D4ED8;
+            border-color: rgba(191, 219, 254, 0.85);
+        }
+        body.theme-boy #sound-btn:hover,
+        body.theme-boy #settings-top-btn:hover {
+            background-color: #DBEAFE;
+        }
+        body.theme-boy #level-capsule {
+            background-color: rgba(239, 246, 255, 0.95);
+            border-color: rgba(191, 219, 254, 0.9);
+        }
+        body.theme-boy #level-badge {
+            color: #1D4ED8;
+        }
+        body.theme-boy #level-progress-bg {
+            background-color: rgba(191, 219, 254, 0.7);
+        }
+        body.theme-boy #level-progress-bar {
+            background-image: linear-gradient(to right, #3B82F6, #06B6D4);
+        }
+        body.theme-boy #level-xp-text {
+            color: #2563EB;
+        }
+        body.theme-boy #nav-pill-container {
+            border-color: #DBEAFE;
+        }
+        body.theme-boy #tab-btn-shop:hover,
+        body.theme-boy #tab-btn-history:hover,
+        body.theme-boy #tab-btn-tasks:hover {
+            background-color: #EFF6FF;
+        }
+        body.theme-boy #shop-header-box {
+            border-color: #DBEAFE;
+        }
+        body.theme-boy #shop-header-icon {
+            background-color: #EFF6FF;
+            color: #2563EB;
+            border-color: #BFDBFE;
+        }
+        body.theme-boy #btn-manage-rewards {
+            background-color: #EFF6FF;
+            border-color: #BFDBFE;
+            color: #1D4ED8;
+        }
+        body.theme-boy #btn-add-reward {
+            background-color: #ECFEFF;
+            border-color: #A5F3FC;
+            color: #0E7490;
+        }
+        body.theme-boy #history-header-box,
+        body.theme-boy #history-container-box {
+            border-color: #DBEAFE;
+        }
+        body.theme-boy #history-header-icon {
+            background-color: #EFF6FF;
+            color: #2563EB;
+            border-color: #BFDBFE;
+        }
+        body.theme-boy #history-count {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+        body.theme-boy #btn-history-adjust {
+            background-color: #FFFBEB;
+            border-color: #FDE68A;
+            color: #B45309;
+        }
+        body.theme-boy #btn-history-export,
+        body.theme-boy #btn-history-import {
+            background-color: #EFF6FF;
+            border-color: #BFDBFE;
+            color: #1D4ED8;
+        }
+        body.theme-boy #floating-bottom-bar {
+            border-color: #93C5FD;
+        }
+        body.theme-boy ::-webkit-scrollbar-track {
+            background: #F0F7FF;
+        }
+        body.theme-boy ::-webkit-scrollbar-thumb {
+            background: #BFDBFE;
+        }
+
+        .theme-primary-bg {
+            background: linear-gradient(135deg, var(--theme-primary), var(--theme-primary-dark));
+        }
+        .theme-jelly-btn {
+            background: linear-gradient(135deg, var(--theme-primary), var(--theme-primary-dark));
+            box-shadow: 0 6px 0 0 var(--theme-jelly);
+        }
+        .theme-jelly-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 0 var(--theme-jelly);
+        }
+
+        .card-3d-press, .card-bounce {
+            transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.14s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .card-3d-press:hover, .card-bounce:hover {
+            transform: translateY(-2px);
+        }
+        .card-3d-press:active, .card-bounce:active {
+            transform: translateY(3px) scale(0.98);
+        }
+
+        @keyframes checkStroke {
+            0% {
+                stroke-dashoffset: 24;
+                transform: scale(0.7);
+            }
+            65% {
+                transform: scale(1.18);
+            }
+            100% {
+                stroke-dashoffset: 0;
+                transform: scale(1);
+            }
+        }
+        .animate-check-svg {
+            transform-origin: center;
+            animation: checkStroke 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .animate-check-svg polyline {
+            stroke-dasharray: 24;
+            stroke-dashoffset: 0;
+            animation: strokeDraw 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes strokeDraw {
+            0% { stroke-dashoffset: 24; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop {
+            animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5F3FF;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #DDD6FE;
+            border-radius: 9999px;
+        }
+
+        /* 弹窗专用内嵌滚动条，圆角轨道内部缩进，绝不出界 */
+        .custom-modal-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #FBBF24 #FEF3C7;
+        }
+        .custom-modal-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-modal-scroll::-webkit-scrollbar-track {
+            background: #FEF3C7;
+            border-radius: 9999px;
+            margin: 6px 0;
+        }
+        .custom-modal-scroll::-webkit-scrollbar-thumb {
+            background: #FBBF24;
+            border-radius: 9999px;
+        }
+        .custom-modal-scroll::-webkit-scrollbar-thumb:hover {
+            background: #F59E0B;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-36 selection:bg-violet-200 selection:text-violet-900">
+
+    <!-- Celebration Confetti Canvas -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-2 items-center sm:items-end pointer-events-none"></div>
+
+    <!-- Top Header & Compact Pastel Dashboard -->
+    <header class="max-w-4xl mx-auto px-4 pt-3 sm:pt-4 pb-1">
+        <div id="hero-card" class="bg-white/95 backdrop-blur-2xl rounded-[30px] px-4 py-4 sm:px-6 sm:py-5 shadow-[0_12px_36px_-6px_rgba(139,92,246,0.12),0_4px_12px_rgba(0,0,0,0.03)] border border-violet-100/90 relative overflow-hidden transition-colors duration-300">
+            <div id="hero-blob-1" class="absolute -top-12 -right-12 w-44 h-44 bg-gradient-to-br from-violet-200/50 via-pink-100/40 to-transparent rounded-full pointer-events-none blur-sm"></div>
+            <div id="hero-blob-2" class="absolute -bottom-14 -left-14 w-40 h-40 bg-gradient-to-tr from-emerald-100/50 via-teal-50/40 to-transparent rounded-full pointer-events-none blur-sm"></div>
+
+            <!-- Top Row: Avatar, Title & Right Action Buttons -->
+            <div id="hero-top-divider" class="relative z-10 flex flex-row items-center justify-between gap-3 pb-3.5 border-b-2 border-dashed border-violet-100/80">
+                <div class="flex items-center gap-3.5 min-w-0">
+                    <div id="theme-avatar-box" onclick="openSettingsModal()" title="点击切换主题或设置" class="cursor-pointer w-12 h-12 sm:w-13 sm:h-13 rounded-[20px] theme-primary-bg flex items-center justify-center text-2xl shadow-pastel-sm border-2 border-white ring-2 ring-violet-200/60 shrink-0 transition-transform hover:scale-105 active:scale-95">
+                        🦄
+                    </div>
+                    <div class="min-w-0">
+                        <h1 id="student-name-display" class="text-base sm:text-xl font-black text-[#2E2545] tracking-tight truncate">星光少女成长打卡站</h1>
+                        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                            <p id="current-date-display" class="text-xs text-[#7E7494] font-bold shrink-0"></p>
+                            <span id="theme-subtitle-text" class="hidden md:inline text-[11px] font-bold text-[#8B7CF6] truncate">· 今日事今日毕，每一份努力都闪闪发光 ✨</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons: 移除了声音开关，只保留个人空间入口与设置 -->
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <button onclick="openShareModal()" id="share-btn" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-50/90 hover:bg-emerald-100 text-emerald-700 font-extrabold text-xs transition border border-emerald-200/90 flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95" title="切换个人独立空间">
+                        <span id="space-emoji">👧</span>
+                        <span id="space-badge-text" class="inline-block max-w-[84px] sm:max-w-[130px] truncate font-black">个人空间</span>
+                        <span id="space-sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white shrink-0" title="云端KV同步就绪"></span>
+                    </button>
+                    <button onclick="openSettingsModal()" id="settings-top-btn" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-violet-50/90 hover:bg-violet-100 text-violet-700 font-extrabold text-xs transition border border-violet-200/80 flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95" title="家长设置与风格主题">
+                        <span>⚙️</span>
+                        <span class="hidden sm:inline">设置</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Middle Row: 3 Solid 3D Base Pastel Scoreboard Cards -->
+            <div class="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 mt-3.5">
+                <div id="score-card-1" class="bg-gradient-to-br from-[#FAF8FF] to-[#EDE9FE] rounded-[22px] px-4 py-3 border border-violet-200 border-b-4 border-b-violet-300 shadow-sm flex flex-col justify-between gap-2.5 transition-all hover:-translate-y-0.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span id="score-card-1-label" class="text-[11px] font-extrabold text-violet-600 uppercase tracking-wider block">✨ 当前可用总积分</span>
+                            <div class="flex items-baseline gap-1 mt-0.5">
+                                <span id="stat-wallet" class="text-2xl sm:text-3xl font-black text-violet-900 leading-none">0</span>
+                                <span id="score-card-1-unit" class="text-xs font-bold text-violet-600">分</span>
+                            </div>
+                        </div>
+                        <div id="score-card-1-icon" class="w-11 h-11 rounded-2xl bg-white/90 border border-violet-100 shadow-2xs flex items-center justify-center text-2xl shrink-0">
+                            💎
+                        </div>
+                    </div>
+
+                    <!-- 等级成长进度舱 (方案 A: 由 Header 主标题旁下沉整合至此) -->
+                    <div id="level-capsule-box" class="pt-2 border-t border-dashed border-violet-200/80 flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between text-[10px] font-black">
+                            <span id="level-badge" class="px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">Lv.1</span>
+                            <div class="flex items-center gap-1.5">
+                                <span id="level-xp-text" class="text-violet-600 font-extrabold">0/150 XP</span>
+                                <span id="xp-text" class="text-violet-500/80 font-bold hidden sm:inline">(累计 0 XP)</span>
+                            </div>
+                        </div>
+                        <div id="level-progress-bg" class="w-full h-1.5 bg-violet-200/70 rounded-full overflow-hidden transition-colors">
+                            <div id="level-progress-bar" class="h-full bg-gradient-to-r from-violet-500 to-pink-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-[#FFFDF5] to-[#FEF3C7]/80 rounded-[22px] px-4 py-3 border border-amber-200 border-b-4 border-b-amber-300 shadow-sm flex items-center justify-between transition-all hover:-translate-y-0.5">
+                    <div class="min-w-0">
+                        <span class="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider block">🎁 今日勾选合计</span>
+                        <div class="flex items-baseline gap-1.5 mt-0.5 flex-wrap">
+                            <span id="stat-pending" class="text-2xl sm:text-3xl font-black text-amber-600 leading-none">0</span>
+                            <span class="text-xs font-bold text-amber-700">分</span>
+                            <span id="stat-diff-badge" class="hidden text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-white text-emerald-600 border border-emerald-200 shadow-2xs"></span>
+                        </div>
+                        <span id="stat-settled-sub" class="text-[10px] font-bold text-amber-700/80 mt-0.5 block truncate">当日以最后一次提交为准</span>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-white/90 border border-amber-100 shadow-2xs flex items-center justify-center text-2xl shrink-0">
+                        🧺
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-[#F0FDF4] to-[#D1FAE5]/70 rounded-[22px] px-4 py-3 border border-emerald-200 border-b-4 border-b-emerald-300 shadow-sm flex items-center justify-between transition-all hover:-translate-y-0.5">
+                    <div>
+                        <span class="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider block">🌱 今日必做通关</span>
+                        <div class="flex items-baseline gap-1 mt-0.5">
+                            <span id="must-progress-text" class="text-2xl sm:text-3xl font-black text-emerald-700 leading-none">0/7</span>
+                            <span class="text-xs font-bold text-emerald-600">项</span>
+                        </div>
+                        <span id="stat-streak-text" class="text-[10px] font-bold text-emerald-600 mt-0.5 block">🔥 已累计打卡 0 天</span>
+                    </div>
+                    <div class="relative w-12 h-12 shrink-0 flex items-center justify-center bg-white/90 rounded-2xl border border-emerald-100 shadow-2xs">
+                        <svg class="w-10 h-10" viewBox="0 0 56 56">
+                            <circle class="text-emerald-100" stroke-width="5" stroke="currentColor" fill="transparent" r="22" cx="28" cy="28" />
+                            <circle id="must-progress-ring" class="text-emerald-500 progress-ring-circle" stroke-width="5" stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round" stroke="currentColor" fill="transparent" r="22" cx="28" cy="28" />
+                        </svg>
+                        <span id="must-progress-pct" class="absolute text-[10px] font-black text-emerald-800">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Pastel Pill Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 mt-2.5">
+        <div id="nav-pill-container" class="bg-white/85 backdrop-blur-md p-1 rounded-[20px] shadow-pastel-sm border-2 border-violet-100 grid grid-cols-3 gap-1.5">
+            <button onclick="switchTab('tasks')" id="tab-btn-tasks" class="py-2 px-3 rounded-[15px] font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 theme-primary-bg text-white shadow-sm">
+                <span>📝</span>
+                <span>今日打卡</span>
+            </button>
+            <button onclick="switchTab('shop')" id="tab-btn-shop" class="py-2 px-3 rounded-[15px] font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 text-[#6E6385] hover:bg-violet-50">
+                <span>🎠</span>
+                <span>积分商城</span>
+            </button>
+            <button onclick="switchTab('history')" id="tab-btn-history" class="py-2 px-3 rounded-[15px] font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 text-[#6E6385] hover:bg-violet-50">
+                <span>📒</span>
+                <span>成长账本</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 mt-4 space-y-6">
+
+        <!-- TAB 1: DAILY CHECK-IN -->
+        <section id="tab-tasks" class="space-y-7">
+            <div id="settled-overwrite-banner" class="hidden bg-gradient-to-r from-emerald-50 via-violet-50 to-pink-50 border-2 border-emerald-200 rounded-[26px] p-4 shadow-pastel-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-2xl bg-emerald-400 text-white flex items-center justify-center text-xl shadow-sm shrink-0">✅</span>
+                    <div>
+                        <p id="settled-banner-title" class="text-xs sm:text-sm font-black text-emerald-900">
+                            今日已完成核算入账！但你随时可以继续调整勾选。
+                        </p>
+                        <p class="text-xs font-bold text-[#6E6385] mt-0.5">
+                            💡 规则：当日无论提交多少次，最终积分与账本只以<span class="text-violet-700 underline">当天最后一次提交</span>为准（自动增减差额，不会重复加分）。
+                        </p>
+                    </div>
+                </div>
+                <span id="settled-banner-time" class="text-xs font-extrabold text-violet-700 bg-white px-3 py-1 rounded-full border border-violet-200 shrink-0 self-start sm:self-center"></span>
+            </div>
+
+            <!-- Group 1: 校内基础 -->
+            <div class="space-y-3.5">
+                <div class="flex items-center justify-between px-1 flex-wrap gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-lg font-bold border border-sky-200">🏫</span>
+                        <div>
+                            <h2 class="text-base sm:text-lg font-black text-[#2E2545]">每日必做 · 校内基础清零</h2>
+                            <p class="text-xs text-[#7E7494] font-bold">学校布置的语数英基础作业，做完一项勾一项</p>
+                        </div>
+                    </div>
+                    <span id="group-pill-school" class="text-xs font-extrabold text-sky-700 bg-sky-50 border-2 border-sky-200/80 px-3 py-1 rounded-full">
+                        每项 +1 分 · 共 3 分
+                    </span>
+                </div>
+                <div id="grid-school" class="grid grid-cols-1 sm:grid-cols-3 sm:auto-rows-fr gap-4 items-stretch"></div>
+            </div>
+
+            <!-- Group 2: 语数英自学 -->
+            <div class="space-y-3.5">
+                <div class="flex items-center justify-between px-1 flex-wrap gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center text-lg font-bold border border-violet-200">🌱</span>
+                        <div>
+                            <h2 class="text-base sm:text-lg font-black text-[#2E2545]">每日必做 · 语数英额外自学</h2>
+                            <p class="text-xs text-[#7E7494] font-bold">每天一点自主拔高微习惯，积少成多</p>
+                        </div>
+                    </div>
+                    <span id="group-pill-selfstudy" class="text-xs font-extrabold text-violet-700 bg-violet-50 border-2 border-violet-200/80 px-3 py-1 rounded-full">
+                        每项 +2 分 · 共 6 分
+                    </span>
+                </div>
+                <div id="grid-selfstudy" class="grid grid-cols-1 sm:grid-cols-3 sm:auto-rows-fr gap-4 items-stretch"></div>
+            </div>
+
+            <!-- Group 3: 收尾好习惯 -->
+            <div class="space-y-3.5">
+                <div class="flex items-center justify-between px-1 flex-wrap gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold border border-emerald-200">🧹</span>
+                        <div>
+                            <h2 class="text-base sm:text-lg font-black text-[#2E2545]">每日必做 · 收尾好习惯</h2>
+                            <p class="text-xs text-[#7E7494] font-bold">有始有终，为明天做好清爽准备</p>
+                        </div>
+                    </div>
+                    <span id="group-pill-habit" class="text-xs font-extrabold text-emerald-700 bg-emerald-50 border-2 border-emerald-200/80 px-3 py-1 rounded-full">
+                        必做 +0.5 分
+                    </span>
+                </div>
+                <div id="grid-habit" class="grid grid-cols-1 gap-4"></div>
+            </div>
+
+            <!-- Group 4: 额外悬赏 -->
+            <div class="space-y-3.5 pt-2">
+                <div class="flex items-center justify-between px-1 flex-wrap gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg font-bold border border-amber-200">🌟</span>
+                        <div>
+                            <h2 class="text-base sm:text-lg font-black text-[#2E2545]">额外悬赏 · 进阶大挑战</h2>
+                            <p class="text-xs text-[#7E7494] font-bold">完成阅读一本书 (+150分) 或学科加练，点击可填写书名/成果备注！</p>
+                        </div>
+                    </div>
+                    <span id="group-pill-bonus" class="text-xs font-extrabold text-amber-800 bg-amber-100 border-2 border-amber-300 px-3 py-1 rounded-full shadow-xs">
+                        🔥 阅读整本书 +150 分
+                    </span>
+                </div>
+                <div id="grid-bonus" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: REWARD SHOP -->
+        <section id="tab-shop" class="hidden space-y-5">
+            <div id="shop-header-box" class="bg-white/90 rounded-[26px] p-4 sm:p-5 border-2 border-pink-100 shadow-pastel-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div id="shop-header-icon" class="w-11 h-11 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center text-2xl border border-pink-200 shrink-0 transition-colors">🎠</div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black text-[#2E2545]">星光心愿兑换商城</h2>
+                        <p class="text-xs font-bold text-[#7E7494]">用每天努力攒下的积分，兑换属于你的自由时间和心愿好礼！</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap shrink-0 self-start sm:self-center">
+                    <button onclick="openManageRewardsModal()" id="btn-manage-rewards" class="px-3.5 py-2 rounded-2xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-extrabold text-xs border-2 border-violet-200 transition">
+                        ✏️ 家长调整既往心愿
+                    </button>
+                    <button onclick="openAddRewardModal()" id="btn-add-reward" class="px-4 py-2 rounded-2xl bg-pink-50 hover:bg-pink-100 text-pink-700 font-extrabold text-xs border-2 border-pink-200 transition">
+                        ➕ 家长上架新心愿
+                    </button>
+                </div>
+            </div>
+
+            <div id="shop-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- TAB 3: GROWTH LEDGER -->
+        <section id="tab-history" class="hidden space-y-5">
+            <div id="history-header-box" class="bg-white/90 rounded-[26px] p-4 sm:p-5 border-2 border-violet-100 shadow-pastel-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div id="history-header-icon" class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center text-2xl border border-violet-200 shrink-0 transition-colors">📒</div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base sm:text-lg font-black text-[#2E2545]">星光成长积分账本</h2>
+                            <span id="history-count" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-700 transition-colors">共 0 条记录</span>
+                        </div>
+                        <p class="text-xs font-bold text-[#7E7494]">记录每一次自律打卡与心愿达成（当日多次提交自动合并为最新一条）</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="openManualAdjustModal()" id="btn-history-adjust" class="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-extrabold text-xs border border-amber-200 transition">
+                        ⚡ 家长手动调分
+                    </button>
+                    <button onclick="exportDataJSON()" id="btn-history-export" class="px-3 py-2 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-extrabold text-xs border border-violet-200 transition">
+                        📥 备份数据
+                    </button>
+                    <label id="btn-history-import" class="px-3 py-2 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-700 font-extrabold text-xs border border-violet-200 transition cursor-pointer">
+                        📤 恢复
+                        <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <div id="history-container-box" class="bg-white/95 rounded-[28px] p-4 sm:p-5 border-2 border-violet-100 shadow-pastel-sm transition-colors">
+                <div id="history-list" class="space-y-2.5"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Bottom Parent Settlement Bar -->
+    <div class="fixed bottom-4 inset-x-0 z-40 px-4 pointer-events-none">
+        <div id="floating-bottom-bar" class="max-w-3xl mx-auto bg-white/95 backdrop-blur-xl rounded-[26px] p-3 sm:px-5 sm:py-3.5 border-2 border-violet-200 shadow-pastel flex items-center justify-between gap-3 pointer-events-auto transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl border border-amber-200 shrink-0">
+                    👑
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="bottom-bar-summary" class="font-black text-xs sm:text-sm text-[#2E2545] truncate">今日已勾 0 项 · 合计 0 分</span>
+                        <span id="bottom-bar-diff-pill" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200"></span>
+                    </div>
+                    <p class="text-[11px] font-bold text-[#7E7494] truncate">当日提交以最后一次为准 · 支持早鸟与工整加成</p>
+                </div>
+            </div>
+
+            <button onclick="openSettlementModal()" class="px-4 sm:px-6 py-2.5 rounded-2xl theme-jelly-btn text-white font-black text-xs sm:text-sm shrink-0 flex items-center gap-1.5 transition cursor-pointer">
+                <span>✨</span>
+                <span id="btn-settle-text">家长最终核算</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 1: BONUS CHALLENGE NOTE -->
+    <div id="modal-bonus-note" class="fixed inset-0 z-50 bg-[#2E2545]/45 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-md w-full p-6 border-2 border-amber-200 shadow-pastel animate-pop">
+            <div class="flex items-center justify-between pb-3.5 border-b-2 border-dashed border-amber-100">
+                <div class="flex items-center gap-2.5">
+                    <div id="bonus-modal-icon" class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl border border-amber-200">
+                        📚
+                    </div>
+                    <div>
+                        <h3 id="bonus-modal-title" class="font-black text-[#2E2545] text-lg">完整阅读一本书</h3>
+                        <p id="bonus-modal-subtitle" class="text-xs font-extrabold text-amber-600">🌟 进阶悬赏挑战 · +150 分</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-bonus-note')" class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 font-bold">✕</button>
+            </div>
+
+            <div class="mt-4">
+                <label id="bonus-modal-label" class="text-xs font-extrabold text-[#5E5475] block mb-2">
+                    📚 写下今天读完的书名或挑战成果吧（选填）：
+                </label>
+                <input type="text" id="bonus-note-input" placeholder="例如：《夏洛的网》/ 奥数行程问题" onkeydown="if(event.key==='Enter') confirmBonusTask()" class="w-full px-4 py-3 rounded-2xl border-2 border-amber-200 text-sm font-bold bg-amber-50/40 focus:bg-white focus:outline-none focus:border-amber-400">
+                <p class="text-[11px] font-bold text-[#7E7494] mt-2">
+                    💡 填写后会永久记录在成长账本里，方便爸妈核验表扬！直接点击完成也可以打卡。
+                </p>
+            </div>
+
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeModal('modal-bonus-note')" class="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-extrabold text-xs">
+                    取消
+                </button>
+                <button id="bonus-modal-confirm-btn" onclick="confirmBonusTask()" class="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-black text-xs shadow-sm">
+                    🌟 完成打卡 (+150分)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SETTINGS & DUAL THEME SELECTOR -->
+    <div id="modal-settings" class="fixed inset-0 z-50 bg-[#2E2545]/45 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-lg w-full p-6 border-2 border-violet-200 shadow-pastel animate-pop max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3.5 border-b-2 border-dashed border-violet-100">
+                <div>
+                    <h3 class="font-black text-[#2E2545] text-lg">⚙️ 家长设置 & 主题风格切换</h3>
+                    <p class="text-xs font-bold text-[#7E7494]">支持一键切换女生/男生专属马卡龙配色与个人独立空间</p>
+                </div>
+                <button onclick="cancelSettingsModal()" class="w-8 h-8 rounded-full bg-violet-50 text-violet-600 font-bold">✕</button>
+            </div>
+
+            <div class="mt-4 space-y-4">
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-2">🎨 选择主题配色风格（点击即可实时预览）</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="previewThemeSelection('girl')" id="theme-card-girl" class="p-3.5 rounded-2xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer bg-[#FAF8FF] border-[#8B7CF6] ring-2 ring-violet-200">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#8B7CF6] flex items-center justify-center text-2xl text-white shrink-0 shadow-xs">
+                                🦄
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-xs sm:text-sm font-black text-[#2E2545] truncate">星光少女版</div>
+                                <div class="text-[11px] font-bold text-violet-600">🌸 梦幻紫罗兰</div>
+                            </div>
+                        </button>
+
+                        <button type="button" onclick="previewThemeSelection('boy')" id="theme-card-boy" class="p-3.5 rounded-2xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer bg-[#F4F9FF] border-sky-200 hover:border-sky-400">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#38BDF8] to-[#2563EB] flex items-center justify-center text-2xl text-white shrink-0 shadow-xs">
+                                🚀
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-xs sm:text-sm font-black text-slate-800 truncate">星际少年版</div>
+                                <div class="text-[11px] font-bold text-blue-600">⚡ 星际晴空蓝</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">🌟 小朋友专属昵称 (选填)</label>
+                        <input type="text" id="set-child-nickname" placeholder="例如：朵朵 / 乐乐" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-bold bg-violet-50/40 focus:bg-white focus:outline-none focus:border-violet-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">🏷️ 打卡站主标题 (可自定义)</label>
+                        <input type="text" id="set-child-name" placeholder="星光少女成长打卡站" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-bold bg-violet-50/40 focus:bg-white focus:outline-none focus:border-violet-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">🔑 当前家长 PIN 码 <span class="text-rose-500">*</span></label>
+                        <input type="password" id="set-old-pin" maxlength="4" inputmode="numeric" placeholder="默认 1234" class="w-full px-3 py-2.5 rounded-2xl border-2 border-violet-200 text-sm text-center tracking-widest font-black bg-violet-50/40">
+                    </div>
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">新 PIN 码 (留空不改)</label>
+                        <input type="password" id="set-new-pin" maxlength="4" inputmode="numeric" placeholder="4位数字" class="w-full px-3 py-2.5 rounded-2xl border-2 border-violet-200 text-sm text-center tracking-widest font-black bg-violet-50/40">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">🔔</span>
+                        <div>
+                            <div class="text-xs font-black text-[#2E2545]">打卡与奖励音效</div>
+                            <div class="text-[11px] font-bold text-[#7E7494]">任务勾选、兑换心愿与升级滑音提示</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="toggleSound()" id="sound-btn" class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition border flex items-center gap-1.5 shadow-2xs bg-emerald-100 text-emerald-800 border-emerald-200">
+                        <span id="sound-icon">🔊</span>
+                        <span id="sound-status-text">已开启</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">🎯</span>
+                        <div>
+                            <div class="text-xs font-black text-[#2E2545]">自定义各任务打卡分值</div>
+                            <div class="text-[11px] font-bold text-[#7E7494]">按孩子成长阶段，自主调节每项打卡激励分值</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openTaskPointsModal()" class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition border flex items-center gap-1 shadow-2xs bg-white text-amber-900 border-amber-200 hover:bg-amber-50 cursor-pointer active:scale-95">
+                        <span>✏️ 调整分值</span>
+                    </button>
+                </div>
+
+                <div class="pt-3 border-t-2 border-dashed border-violet-100">
+                    <div class="flex items-center justify-between px-1 pt-1">
+                        <div>
+                            <div class="text-xs font-black text-[#2E2545]">🔄 清空今日卡片勾选状态</div>
+                            <div class="text-[11px] font-bold text-[#7E7494]">把今天所有勾选项恢复为未选</div>
+                        </div>
+                        <button type="button" onclick="resetTodayBoardWithPin()" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs border border-rose-200 transition">
+                            重置今日勾选
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <p id="settings-msg" class="text-xs font-extrabold text-rose-600 mt-3 hidden text-center"></p>
+
+            <div class="mt-5 flex gap-3">
+                <button onclick="cancelSettingsModal()" class="flex-1 py-2.5 rounded-2xl bg-slate-100 text-slate-600 font-extrabold text-xs">取消</button>
+                <button onclick="saveSettings()" class="flex-1 py-2.5 rounded-2xl theme-primary-bg text-white font-extrabold text-xs shadow-sm">💾 保存设置（需输入当前PIN码）</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7: CUSTOM TASK POINTS CONFIG -->
+    <div id="modal-custom-task-points" onclick="if(event.target === this) closeModal('modal-custom-task-points')" class="fixed inset-0 z-50 bg-[#2E2545]/45 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-[32px] max-w-lg w-full border-2 border-amber-200 shadow-pastel animate-pop max-h-[86vh] flex flex-col overflow-hidden">
+            <!-- 1. 固定顶部 Header -->
+            <div class="px-6 py-4 border-b-2 border-dashed border-amber-100 flex items-center justify-between shrink-0 bg-white">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl border border-amber-200 shrink-0">🎯</div>
+                    <div class="min-w-0">
+                        <h3 class="font-black text-[#2E2545] text-base sm:text-lg truncate">各任务打卡分值自定义</h3>
+                        <p class="text-[11px] sm:text-xs font-bold text-[#7E7494] truncate">按孩子成长阶段调节激励权重（需家长 PIN 码）</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-custom-task-points')" class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 font-bold hover:bg-amber-100 cursor-pointer shrink-0 transition">✕</button>
+            </div>
+
+            <!-- 2. 中间独立滚动区（滚动条内嵌，绝对限制在视口与圆角卡片内部） -->
+            <div class="flex-1 overflow-y-auto px-6 py-4 custom-modal-scroll">
+                <div id="task-points-list" class="space-y-4 divide-y divide-dashed divide-slate-100 pr-1">
+                    <!-- 动态生成各任务分值输入框 -->
+                </div>
+            </div>
+
+            <!-- 3. 固定底部 Footer（PIN 码与保存操作区） -->
+            <div class="px-6 py-3.5 bg-amber-50/50 border-t-2 border-dashed border-amber-100 shrink-0 space-y-2.5">
+                <div class="flex items-center justify-between gap-2 bg-white px-3.5 py-2 rounded-2xl border border-amber-200">
+                    <label class="text-xs font-extrabold text-amber-900 shrink-0">
+                        🔑 家长 4 位 PIN 码（默认 1234）：
+                    </label>
+                    <input type="password" id="task-points-pin" maxlength="4" inputmode="numeric" placeholder="••••" class="w-24 px-2.5 py-1 rounded-xl border border-amber-300 text-xs font-black text-center tracking-widest bg-amber-50/30 focus:outline-none focus:border-amber-500">
+                </div>
+                <p id="task-points-error" class="text-xs font-extrabold text-rose-600 hidden text-center"></p>
+
+                <div class="flex gap-2.5">
+                    <button onclick="resetDefaultTaskPoints()" type="button" class="px-3.5 py-2.5 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-extrabold text-xs shrink-0 cursor-pointer transition">
+                        🔄 恢复默认
+                    </button>
+                    <button onclick="closeModal('modal-custom-task-points')" type="button" class="flex-1 py-2.5 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-extrabold text-xs cursor-pointer transition">
+                        取消
+                    </button>
+                    <button onclick="saveCustomTaskPoints()" type="button" class="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-sm cursor-pointer transition">
+                        💾 保存分值
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- MODAL 6: PERSONAL INDEPENDENT SPACE -->
+    <div id="modal-share" onclick="if(event.target === this) closeModal('modal-share')" class="fixed inset-0 z-50 bg-[#2E2545]/45 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-[28px] sm:rounded-[32px] max-w-md w-full p-4 sm:p-6 border-2 border-emerald-200 shadow-pastel animate-pop max-h-[88vh] overflow-y-auto">
+            <!-- 头部：标题与关闭按钮（响应式对齐，防止小屏幕折行变形） -->
+            <div class="flex items-start justify-between pb-3.5 border-b-2 border-dashed border-emerald-100 gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div id="space-modal-icon" class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl border border-emerald-200 shrink-0">👧</div>
+                    <div class="min-w-0">
+                        <h3 class="font-black text-[#2E2545] text-base sm:text-lg leading-tight truncate">个人独立空间</h3>
+                        <p class="text-[11px] sm:text-xs font-bold text-[#7E7494] mt-0.5 truncate">多宝贝专属独立打卡空间与账本</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-share')" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 font-bold hover:bg-emerald-100 flex items-center justify-center shrink-0 cursor-pointer transition">✕</button>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="mt-4 space-y-3.5">
+                <!-- 当前所在空间卡片 -->
+                <div class="p-3 rounded-2xl bg-emerald-50/60 border border-emerald-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <span class="text-xs font-bold text-emerald-800 shrink-0">当前空间：</span>
+                        <span id="modal-current-space-name" class="text-xs font-black text-emerald-950 truncate bg-white px-2 py-0.5 rounded-lg border border-emerald-200">个人空间</span>
+                    </div>
+                    <span id="cloud-sync-indicator" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white text-emerald-700 border border-emerald-200 shrink-0 self-start sm:self-auto">
+                        独立存储已就绪
+                    </span>
+                </div>
+
+                <!-- 切换空间表单卡片 -->
+                <div class="bg-white rounded-2xl p-3.5 border-2 border-emerald-200/80 shadow-2xs space-y-2.5">
+                    <label class="block text-xs font-black text-[#2E2545]">
+                        🔑 输入空间暗号（支持小朋友姓名拼音/英文）：
+                    </label>
+                    <!-- 移动端纵向堆叠，桌面端横向排列，大拇指极易点击 -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="space-id-input" placeholder="例如：duoduo / leo" onkeydown="if(event.key==='Enter') switchFamilySpace()" class="w-full sm:flex-1 px-3.5 py-2 rounded-xl border-2 border-emerald-200 text-xs sm:text-sm font-black text-emerald-950 bg-emerald-50/20 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                        <button onclick="switchFamilySpace()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shrink-0 cursor-pointer active:scale-95 transition shadow-2xs">
+                            切换/进入
+                        </button>
+                    </div>
+
+                    <!-- 快捷建议标签 -->
+                    <div class="flex items-center gap-1.5 flex-wrap pt-1">
+                        <span class="text-[10px] font-bold text-[#7E7494]">快捷：</span>
+                        <button type="button" onclick="document.getElementById('space-id-input').value=''; switchFamilySpace();" class="text-[10px] font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer transition">
+                            🏠 默认空间
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 规则提示说明 -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-[11px] font-bold text-[#7E7494] space-y-1 leading-relaxed">
+                    <p class="flex items-start gap-1">
+                        <span class="shrink-0">💡</span>
+                        <span>每位小朋友输入不同暗号（1-24位字母、数字），打卡记录、积分与等级将完全独立隔离保存。</span>
+                    </p>
+                    <p class="flex items-start gap-1">
+                        <span class="shrink-0">🔑</span>
+                        <span>新创建空间的初始家长 PIN 码默认为 <code class="bg-white px-1 rounded border border-slate-200 text-slate-800 font-black">1234</code>。</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 底部操作按钮 -->
+            <div class="mt-4">
+                <button onclick="closeModal('modal-share')" class="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs transition cursor-pointer">
+                    完成并关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- MODAL 2: PARENT FINAL SETTLEMENT -->
+    <div id="modal-settlement" class="fixed inset-0 z-50 bg-[#2E2545]/45 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-lg w-full p-6 border-2 border-violet-200 shadow-pastel animate-pop max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b-2 border-dashed border-violet-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center text-2xl border border-violet-200">
+                        👑
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-black text-[#2E2545] text-lg">家长最终核算确认</h3>
+                            <span id="modal-settle-badge" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-700">首次提交</span>
+                        </div>
+                        <p class="text-xs font-bold text-[#7E7494]">当日多次提交仅以最后一次为准，自动覆盖差额</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-settlement')" class="w-9 h-9 rounded-full bg-violet-50 hover:bg-violet-100 text-violet-600 font-bold flex items-center justify-center">✕</button>
+            </div>
+
+            <div id="modal-overwrite-alert" class="hidden mt-4 bg-gradient-to-r from-violet-50 to-emerald-50 border-2 border-violet-200 rounded-2xl p-3.5">
+                <div class="text-xs font-black text-violet-900 flex items-center gap-1.5">
+                    <span>🔄</span>
+                    <span>同日覆盖结算模式（以最后一次提交为准）</span>
+                </div>
+                <p id="modal-overwrite-detail" class="text-xs font-bold text-[#5E5475] mt-1 leading-relaxed"></p>
+            </div>
+
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-xs font-extrabold text-[#6E6385] mb-2">
+                    <span>📋 今日勾选完成项目清单</span>
+                    <span id="modal-pending-count" class="text-violet-700">0 项</span>
+                </div>
+                <div id="modal-task-list" class="bg-[#FAF8FF] rounded-2xl p-3 space-y-2 max-h-44 overflow-y-auto border-2 border-violet-100"></div>
+            </div>
+
+            <div class="mt-4 space-y-2.5">
+                <div class="text-xs font-extrabold text-[#6E6385]">⚡ 家长额外激励加成（可勾选）：</div>
+
+                <label class="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-50/70 border-2 border-emerald-200/80 hover:border-emerald-300 cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="parent-speed-bonus" onchange="updateSettlementTotalPreview()" class="w-5 h-5 accent-emerald-500 rounded-lg cursor-pointer">
+                        <div>
+                            <div class="text-xs sm:text-sm font-black text-emerald-950">🚀 今日高效不拖拉奖（早鸟加成）</div>
+                            <div class="text-[11px] font-bold text-emerald-700">在约定时间前主动清空必做任务，专注不磨蹭</div>
+                        </div>
+                    </div>
+                    <span id="settle-speed-pts-badge" class="text-xs font-black text-emerald-700 bg-white px-2.5 py-1 rounded-full border border-emerald-200 shrink-0">+1.5 分</span>
+                </label>
+
+                <label class="flex items-center justify-between p-3.5 rounded-2xl bg-pink-50/70 border-2 border-pink-200/80 hover:border-pink-300 cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="parent-neat-bonus" onchange="updateSettlementTotalPreview()" class="w-5 h-5 accent-pink-500 rounded-lg cursor-pointer">
+                        <div>
+                            <div class="text-xs sm:text-sm font-black text-pink-950">✍️ 卷面书写工整暴击奖</div>
+                            <div class="text-[11px] font-bold text-pink-700">字迹端正清爽，错题订正认真到位</div>
+                        </div>
+                    </div>
+                    <span id="settle-neat-pts-badge" class="text-xs font-black text-pink-700 bg-white px-2.5 py-1 rounded-full border border-pink-200 shrink-0">+1.5 分</span>
+                </label>
+            </div>
+
+            <div class="mt-4 bg-violet-50/90 rounded-2xl p-4 border-2 border-violet-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-extrabold text-violet-700 block">本次最终核算总分</span>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span id="modal-total-score" class="text-3xl font-black text-violet-900">0 分</span>
+                        <span id="modal-net-diff" class="hidden text-xs font-extrabold px-2 py-0.5 rounded-full"></span>
+                    </div>
+                </div>
+                <div class="w-full sm:w-auto">
+                    <label class="text-xs font-extrabold text-violet-800 block mb-1">🔑 家长 4 位 PIN 码</label>
+                    <input type="password" id="settlement-pin" maxlength="4" inputmode="numeric" placeholder="默认 1234" class="w-full sm:w-36 text-center tracking-widest font-black text-base px-3 py-2 rounded-xl border-2 border-violet-300 focus:outline-none focus:border-violet-600 bg-white text-violet-900">
+                </div>
+            </div>
+
+            <p id="settlement-error" class="text-xs font-extrabold text-rose-600 mt-2.5 hidden text-center"></p>
+
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeModal('modal-settlement')" class="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-extrabold text-xs sm:text-sm transition">
+                    返回修改
+                </button>
+                <button onclick="confirmSettlement()" class="flex-1 py-3 rounded-2xl theme-jelly-btn text-white font-black text-xs sm:text-sm transition">
+                    ✨ 确认核算（以此为准）
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ADD REWARD -->
+    <div id="modal-add-reward" class="fixed inset-0 z-50 bg-[#2E2545]/40 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-md w-full p-6 border-2 border-pink-200 shadow-pastel animate-pop">
+            <div class="flex items-center justify-between pb-3.5 border-b-2 border-dashed border-pink-100">
+                <h3 class="font-black text-[#2E2545] text-lg">🎁 新增心愿奖品</h3>
+                <button onclick="closeModal('modal-add-reward')" class="w-8 h-8 rounded-full bg-pink-50 text-pink-600 font-bold">✕</button>
+            </div>
+            <div class="mt-4 space-y-3">
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">心愿图标 (Emoji)</label>
+                    <input type="text" id="reward-icon-input" value="🎮" maxlength="2" class="w-20 text-center text-xl px-3 py-2 rounded-2xl border-2 border-violet-200 bg-violet-50/40">
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-extrabold text-[#5E5475] block">心愿名称（少于15个字）</label>
+                        <span id="reward-title-count" class="text-[11px] font-bold text-violet-500">0/14字</span>
+                    </div>
+                    <input type="text" id="reward-title-input" maxlength="14" oninput="updateAddTitleCount()" placeholder="例如：买喜欢的文具 / 玩25分钟游戏" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-bold bg-violet-50/40">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">所需积分</label>
+                        <input type="number" id="reward-cost-input" value="50" min="5" step="5" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-black bg-violet-50/40">
+                    </div>
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">家长 PIN 码</label>
+                        <input type="password" id="reward-pin-input" maxlength="4" inputmode="numeric" placeholder="默认 1234" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm text-center tracking-widest font-black bg-violet-50/40">
+                    </div>
+                </div>
+            </div>
+            <p id="reward-error" class="text-xs font-extrabold text-rose-600 mt-2.5 hidden text-center"></p>
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeModal('modal-add-reward')" class="flex-1 py-2.5 rounded-2xl bg-slate-100 text-slate-600 font-extrabold text-xs">取消</button>
+                <button onclick="saveNewReward()" class="flex-1 py-2.5 rounded-2xl bg-[#8B7CF6] hover:bg-violet-600 text-white font-extrabold text-xs">确认上架</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4B: MANAGE REWARDS -->
+    <div id="modal-manage-rewards" class="fixed inset-0 z-50 bg-[#2E2545]/40 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-md w-full p-6 border-2 border-violet-200 shadow-pastel animate-pop">
+            <div class="flex items-center justify-between pb-3.5 border-b-2 border-dashed border-violet-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">✏️</span>
+                    <h3 class="font-black text-[#2E2545] text-lg">家长调整既往心愿</h3>
+                </div>
+                <button onclick="closeModal('modal-manage-rewards')" class="w-8 h-8 rounded-full bg-violet-50 text-violet-600 font-bold">✕</button>
+            </div>
+            <p class="text-xs font-bold text-[#7E7494] mt-2.5 mb-3">
+                选择需要调整的心愿，可修改心愿描述（少于15个字）及积分：
+            </p>
+            <div id="manage-rewards-list" class="max-h-72 overflow-y-auto space-y-2.5 pr-1"></div>
+            <div class="mt-4 pt-3 border-t border-violet-100 flex justify-end">
+                <button onclick="closeModal('modal-manage-rewards')" class="px-5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-extrabold text-xs transition">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4C: EDIT REWARD -->
+    <div id="modal-edit-reward" class="fixed inset-0 z-50 bg-[#2E2545]/40 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-md w-full p-6 border-2 border-violet-200 shadow-pastel animate-pop">
+            <div class="flex items-center justify-between pb-3.5 border-b-2 border-dashed border-violet-100">
+                <h3 class="font-black text-[#2E2545] text-lg">✏️ 调整心愿描述与积分</h3>
+                <button onclick="closeModal('modal-edit-reward')" class="w-8 h-8 rounded-full bg-violet-50 text-violet-600 font-bold">✕</button>
+            </div>
+            <input type="hidden" id="edit-reward-id">
+            <div class="mt-4 space-y-3">
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">心愿图标 (Emoji)</label>
+                    <input type="text" id="edit-reward-icon-input" maxlength="2" class="w-20 text-center text-xl px-3 py-2 rounded-2xl border-2 border-violet-200 bg-violet-50/40">
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-extrabold text-[#5E5475] block">心愿描述（必须少于15个字）</label>
+                        <span id="edit-reward-title-count" class="text-[11px] font-bold text-violet-500">0/14字</span>
+                    </div>
+                    <input type="text" id="edit-reward-title-input" maxlength="14" oninput="updateEditTitleCount()" placeholder="例如：玩 25 分钟游戏" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-bold bg-violet-50/40">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">所需积分</label>
+                        <input type="number" id="edit-reward-cost-input" min="1" step="1" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-black bg-violet-50/40">
+                    </div>
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">家长 PIN 码</label>
+                        <input type="password" id="edit-reward-pin-input" maxlength="4" inputmode="numeric" placeholder="默认 1234" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm text-center tracking-widest font-black bg-violet-50/40">
+                    </div>
+                </div>
+            </div>
+            <p id="edit-reward-error" class="text-xs font-extrabold text-rose-600 mt-2.5 hidden text-center"></p>
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeModal('modal-edit-reward')" class="flex-1 py-2.5 rounded-2xl bg-slate-100 text-slate-600 font-extrabold text-xs">取消</button>
+                <button onclick="submitEditReward()" class="flex-1 py-2.5 rounded-2xl bg-[#8B7CF6] hover:bg-violet-600 text-white font-extrabold text-xs">确认调整</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: MANUAL POINTS ADJUST -->
+    <div id="modal-manual-adjust" class="fixed inset-0 z-50 bg-[#2E2545]/40 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-md w-full p-6 border-2 border-amber-200 shadow-pastel animate-pop">
+            <div class="flex items-center justify-between pb-3.5 border-b-2 border-dashed border-amber-100">
+                <h3 class="font-black text-[#2E2545] text-lg">⚡ 家长手动奖惩调分</h3>
+                <button onclick="closeModal('modal-manual-adjust')" class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 font-bold">✕</button>
+            </div>
+            <div class="mt-4 space-y-3">
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">调整分值（正数加分，负数扣分，支持 0.5 小数）</label>
+                    <input type="number" id="adjust-points-input" value="2" step="0.5" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-black bg-violet-50/40">
+                </div>
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">奖惩原因备注</label>
+                    <input type="text" id="adjust-reason-input" placeholder="例如：主动帮家里分担家务 / 单元测验进步" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm font-bold bg-violet-50/40">
+                </div>
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">家长 PIN 码</label>
+                    <input type="password" id="adjust-pin-input" maxlength="4" inputmode="numeric" placeholder="默认 1234" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-violet-200 text-sm text-center tracking-widest font-black bg-violet-50/40">
+                </div>
+            </div>
+            <p id="adjust-error" class="text-xs font-extrabold text-rose-600 mt-2.5 hidden text-center"></p>
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeModal('modal-manual-adjust')" class="flex-1 py-2.5 rounded-2xl bg-slate-100 text-slate-600 font-extrabold text-xs">取消</button>
+                <button onclick="confirmManualAdjust()" class="flex-1 py-2.5 rounded-2xl bg-[#8B7CF6] hover:bg-violet-600 text-white font-extrabold text-xs">确认执行</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SPEED_BONUS_PTS = 1.5;
+        const NEAT_BONUS_PTS = 1.5;
+
+        function roundScore(num) {
+            return Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+        }
+
+        const TASKS = [
+            { id: 'school_math', group: 'school', title: '校内数学作业', desc: '完成当日数学作业 + 错题闭环订正', points: 1, icon: '📐', color: 'sky' },
+            { id: 'school_chinese', group: 'school', title: '校内语文作业', desc: '生字词默写 / 课文背诵 / 课内作业', points: 1, icon: '📖', color: 'sakura' },
+            { id: 'school_english', group: 'school', title: '校内英语作业', desc: '课内原音跟读与同步书写练习', points: 1, icon: '🔤', color: 'lavender' },
+            { id: 'self_english', group: 'selfstudy', title: '自学拓展 · 英语', desc: '原版分级阅读 / 单词闯关 / 听力输入', points: 2, icon: '🎧', color: 'lavender' },
+            { id: 'self_math', group: 'selfstudy', title: '自学拓展 · 数学', desc: '思维拓展题 / 算力微练 / 新课预习', points: 2, icon: '🧮', color: 'sky' },
+            { id: 'self_chinese', group: 'selfstudy', title: '自学拓展 · 语文', desc: '古诗文诵读 / 每日好词好句摘抄积累', points: 2, icon: '✒️', color: 'sakura' },
+            { id: 'habit_pack', group: 'habit', title: '个人日常好习惯', desc: '书包整理与桌面清空 · 规律起居自律', points: 0.5, icon: '🎒', color: 'mint' },
+            { id: 'bonus_book', group: 'bonus', title: '书籍 · 完整阅读一本书', desc: '读完一本大部头课外书并分享核心情节', points: 15, icon: '📚', color: 'butter', prompt: '📚 写下今天读完的书名吧（选填）：' },
+            { id: 'bonus_english', group: 'bonus', title: '英语 · 进阶深度挑战', desc: '完成一套高阶同步自测或原版流利复述', points: 15, icon: '🏆', color: 'butter', prompt: '🏆 写下今天完成的英语进阶内容（选填）：' },
+            { id: 'bonus_math', group: 'bonus', title: '数学 · 压轴思维攻坚', desc: '独立攻克高难度思维题并给家长讲清思路', points: 15, icon: '🧠', color: 'butter', prompt: '🧠 写下今天攻克的数学难题类型（选填）：' },
+            { id: 'bonus_chinese', group: 'bonus', title: '语文 · 深度写作/读书笔记', desc: '自主完成一篇高质量习作或深度读书笔记', points: 15, icon: '📝', color: 'butter', prompt: '📝 写下今天创作的文章题目（选填）：' }
+        ];
+
+        const SPECIAL_BONUSES = [
+            { id: 'special_speed', group: 'settle_bonus', title: '今日高效不拖拉奖（早鸟加成）', desc: '在约定时间前主动清空必做任务，专注不磨蹭', points: 1.5, icon: '🚀', color: 'mint' },
+            { id: 'special_neat', group: 'settle_bonus', title: '卷面书写工整暴击奖', desc: '字迹端正清爽，主课错题订正认真到位', points: 1.5, icon: '✍️', color: 'sakura' }
+        ];
+
+        function getSpecialBonusPoints(key, defaultPts = 1.5) {
+            if (state && state.customTaskPoints && state.customTaskPoints[key] !== undefined) {
+                const val = Number(state.customTaskPoints[key]);
+                return isNaN(val) ? defaultPts : val;
+            }
+            return defaultPts;
+        }
+
+        function getAllConfigurableItems() {
+            return [...TASKS, ...SPECIAL_BONUSES];
+        }
+
+        const DEFAULT_REWARDS = [
+            { id: 'rw_1', title: '自由游戏 / 娱乐时间 20 分钟', cost: 30, icon: '🎮' },
+            { id: 'rw_2', title: '免做一次小家务 / 睡前故事加场', cost: 50, icon: '🎟️' },
+            { id: 'rw_3', title: '挑选心仪的文具 / 手账贴纸一套', cost: 80, icon: '🦄' },
+            { id: 'rw_4', title: '周末全家大餐点菜决定权', cost: 120, icon: '🍕' },
+            { id: 'rw_5', title: '兑换一本想看的课外书或零花钱', cost: 160, icon: '🎁' },
+            { id: 'rw_6', title: '周末半天完全自由安排特权', cost: 250, icon: '🎡' }
+        ];
+
+        const THEME_PRESETS = {
+            girl: {
+                defaultTitle: '星光少女成长打卡站',
+                avatar: '🦄',
+                subtitle: '· 今日事今日毕，每一份努力都闪闪发光 ✨',
+                levels: ['Lv.1 星光初心学者', 'Lv.2 梦幻专注达人', 'Lv.3 紫罗兰自律骑士', 'Lv.4 闪耀时间魔法师', 'Lv.5 传奇星光女王'],
+                confettiColors: ['#A78BFA', '#F472B6', '#34D399', '#FBBF24', '#60A5FA']
+            },
+            boy: {
+                defaultTitle: '星际少年成长打卡站',
+                avatar: '🚀',
+                subtitle: '· 今日事今日毕，每一次探索都充满能量 ⚡',
+                levels: ['Lv.1 星际见习领航员', 'Lv.2 极光专注先锋', 'Lv.3 银河自律骑士', 'Lv.4 超新星时间指挥官', 'Lv.5 传奇星际舰长'],
+                confettiColors: ['#3B82F6', '#06B6D4', '#10B981', '#F59E0B', '#6366F1']
+            }
+        };
+
+        let currentSpaceId = 'default';
+        let previewingTheme = null;
+        let currentBonusTaskId = null;
+        let state = {};
+        let syncTimer = null;
+
+        function getTodayKey() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function detectInitialSpaceId() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const fromUrl = params.get('space');
+                if (fromUrl && /^[a-zA-Z0-9_-]{1,24}$/.test(fromUrl)) {
+                    localStorage.setItem('STARLIGHT_LAST_SPACE_ID', fromUrl.toLowerCase());
+                    return fromUrl.toLowerCase();
+                }
+            } catch (e) {}
+            return localStorage.getItem('STARLIGHT_LAST_SPACE_ID') || 'default';
+        }
+
+        function getStorageKey() {
+            return `STARLIGHT_GROWTH_V3_${currentSpaceId}`;
+        }
+
+        function createFreshDefaultState() {
+            const checks = {};
+            TASKS.forEach(t => { checks[t.id] = { checked: false, note: '' }; });
+            return {
+                theme: 'girl',
+                studentName: '星光少女成长打卡站',
+                nickname: '',
+                pin: '1234',
+                soundEnabled: true,
+                totalPoints: 0,
+                totalXP: 0,
+                currentDateKey: getTodayKey(),
+                todayChecks: checks,
+                todaySpeedBonus: false,
+                todayNeatBonus: false,
+                dailySettlements: {},
+                rewards: JSON.parse(JSON.stringify(DEFAULT_REWARDS)),
+                history: [],
+                customTaskPoints: {},
+                updatedAt: 0
+            };
+        }
+
+        function normalizeAndRolloverState(targetState) {
+            if (!targetState.todayChecks) targetState.todayChecks = {};
+            TASKS.forEach(t => {
+                if (!targetState.todayChecks[t.id]) {
+                    targetState.todayChecks[t.id] = { checked: false, note: '' };
+                }
+            });
+            if (!targetState.customTaskPoints) targetState.customTaskPoints = {};
+            if (!targetState.dailySettlements) targetState.dailySettlements = {};
+            if (!Array.isArray(targetState.rewards) || targetState.rewards.length === 0) {
+                targetState.rewards = JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+            }
+            if (!Array.isArray(targetState.history)) targetState.history = [];
+
+            const today = getTodayKey();
+            if (targetState.currentDateKey !== today) {
+                targetState.currentDateKey = today;
+                const todayRecord = targetState.dailySettlements[today];
+                if (todayRecord && todayRecord.checksSnapshot) {
+                    targetState.todayChecks = JSON.parse(JSON.stringify(todayRecord.checksSnapshot));
+                    targetState.todaySpeedBonus = !!todayRecord.speedBonus;
+                    targetState.todayNeatBonus = !!todayRecord.neatBonus;
+                } else {
+                    TASKS.forEach(t => { targetState.todayChecks[t.id] = { checked: false, note: '' }; });
+                    targetState.todaySpeedBonus = false;
+                    targetState.todayNeatBonus = false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        function getTaskPoints(task) {
+            if (state.customTaskPoints && state.customTaskPoints[task.id] !== undefined) {
+                const custom = parseFloat(state.customTaskPoints[task.id]);
+                if (!isNaN(custom) && custom > 0) return roundScore(custom);
+            }
+            return task.points;
+        }
+
+        function getEffectiveTasks() {
+            return TASKS.map(t => ({
+                ...t,
+                points: getTaskPoints(t)
+            }));
+        }
+
+        function updateCloudIndicator(text, isSuccess = true) {
+            const el = document.getElementById('cloud-sync-indicator');
+            if (el) {
+                el.textContent = text;
+                el.className = isSuccess
+                    ? 'text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white text-emerald-700 border border-emerald-200'
+                    : 'text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+            }
+            const dot = document.getElementById('space-sync-dot');
+            if (dot) {
+                dot.className = isSuccess
+                    ? 'w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white shrink-0'
+                    : 'w-2 h-2 rounded-full bg-amber-400 ring-2 ring-white shrink-0';
+                dot.title = text;
+            }
+        }
+
+        function loadState() {
+            currentSpaceId = detectInitialSpaceId();
+            const raw = localStorage.getItem(getStorageKey());
+            const fresh = createFreshDefaultState();
+            if (raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    state = { ...fresh, ...parsed };
+                } catch (e) {
+                    state = fresh;
+                }
+            } else {
+                state = fresh;
+            }
+
+            if (normalizeAndRolloverState(state)) {
+                saveState(false);
+            }
+
+            pullStateFromCloud();
+        }
+
+        async function pullStateFromCloud() {
+            try {
+                updateCloudIndicator('☁️ 正在同步云端...');
+                const res = await fetch(`/api/state?space=${encodeURIComponent(currentSpaceId)}`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!res.ok) return;
+                const result = await res.json();
+                if (!result.kvBound) {
+                    updateCloudIndicator('💾 本地存储模式 (未绑KV)', false);
+                    return;
+                }
+                if (result.ok && result.data) {
+                    const cloudData = result.data;
+                    const localTime = Number(state.updatedAt || 0);
+                    const cloudTime = Number(cloudData.updatedAt || 0);
+                    if (cloudTime >= localTime || (state.history.length === 0 && state.totalPoints === 0)) {
+                        const fresh = createFreshDefaultState();
+                        state = { ...fresh, ...cloudData };
+                        normalizeAndRolloverState(state);
+                        localStorage.setItem(getStorageKey(), JSON.stringify(state));
+                        renderAll();
+                    } else if (localTime > cloudTime) {
+                        pushStateToCloud();
+                    }
+                    updateCloudIndicator('☁️ 云端 KV 已同步');
+                } else if (result.ok && !result.data) {
+                    if (state.updatedAt > 0 || state.history.length > 0) {
+                        pushStateToCloud();
+                    } else {
+                        updateCloudIndicator('☁️ 云端 KV 已就绪');
+                    }
+                }
+            } catch (e) {
+                updateCloudIndicator('💾 离线本地模式', false);
+            }
+        }
+
+        function pushStateToCloud() {
+            if (syncTimer) clearTimeout(syncTimer);
+            syncTimer = setTimeout(async () => {
+                try {
+                    updateCloudIndicator('☁️ 正在保存至云端...');
+                    const res = await fetch(`/api/state?space=${encodeURIComponent(currentSpaceId)}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(state)
+                    });
+                    const result = await res.json();
+                    if (result.ok && result.kvBound) {
+                        updateCloudIndicator('☁️ 云端 KV 已同步');
+                    } else if (!result.kvBound) {
+                        updateCloudIndicator('💾 本地存储模式 (未绑KV)', false);
+                    }
+                } catch (e) {
+                    updateCloudIndicator('⚠️ 云端暂未连接 (已存本地)', false);
+                }
+            }, 250);
+        }
+
+        function saveState(syncCloud = true) {
+            state.updatedAt = Date.now();
+            try {
+                localStorage.setItem(getStorageKey(), JSON.stringify(state));
+            } catch (e) {}
+            if (syncCloud) {
+                pushStateToCloud();
+            }
+        }
+
+        let audioCtx = null;
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
+
+                if (type === 'check') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.12);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.16);
+                } else if (type === 'uncheck') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.exponentialRampToValueAtTime(392.00, now + 0.10);
+                    gain.gain.setValueAtTime(0.10, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.14);
+                } else if (type === 'fanfare') {
+                    const notes = [523.25, 659.25, 783.99, 1046.5];
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                        gain.gain.setValueAtTime(0.14, now + idx * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.07);
+                        osc.stop(now + idx * 0.07 + 0.25);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function updateSoundButtonVisual() {
+            const icon = document.getElementById('sound-icon');
+            const text = document.getElementById('sound-status-text');
+            const btn = document.getElementById('sound-btn');
+            const isEnabled = !!state.soundEnabled;
+            if (icon) icon.textContent = isEnabled ? '🔊' : '🔇';
+            if (text) text.textContent = isEnabled ? '已开启' : '已静音';
+            if (btn) {
+                btn.className = isEnabled
+                    ? 'px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition border flex items-center gap-1.5 shadow-2xs bg-emerald-100 text-emerald-800 border-emerald-200 cursor-pointer active:scale-95'
+                    : 'px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition border flex items-center gap-1.5 shadow-2xs bg-slate-100 text-slate-600 border-slate-200 cursor-pointer active:scale-95';
+            }
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            saveState();
+            updateSoundButtonVisual();
+            showToast(state.soundEnabled ? '🔊 打卡音效已开启' : '🔇 打卡音效已静音');
+        }
+
+        function applyThemeVisuals(themeKey) {
+            const isBoy = themeKey === 'boy';
+            document.body.classList.toggle('theme-boy', isBoy);
+            const preset = THEME_PRESETS[isBoy ? 'boy' : 'girl'];
+
+            const avatarBox = document.getElementById('theme-avatar-box');
+            if (avatarBox) avatarBox.textContent = preset.avatar;
+
+            const spaceEmoji = document.getElementById('space-emoji');
+            if (spaceEmoji) spaceEmoji.textContent = isBoy ? '👦' : '👧';
+            const spaceModalIcon = document.getElementById('space-modal-icon');
+            if (spaceModalIcon) spaceModalIcon.textContent = isBoy ? '👦' : '👧';
+
+            const subText = document.getElementById('theme-subtitle-text');
+            if (subText) {
+                subText.textContent = preset.subtitle;
+                subText.className = `hidden md:inline text-[11px] font-bold ${isBoy ? 'text-blue-600' : 'text-[#8B7CF6]'}`;
+            }
+
+            const scoreCard1 = document.getElementById('score-card-1');
+            const scoreLabel1 = document.getElementById('score-card-1-label');
+            const statWallet = document.getElementById('stat-wallet');
+            const scoreUnit1 = document.getElementById('score-card-1-unit');
+            const scoreCard1Icon = document.getElementById('score-card-1-icon');
+            const levelCapsuleBox = document.getElementById('level-capsule-box');
+            const levelBadge = document.getElementById('level-badge');
+            const levelXpText = document.getElementById('level-xp-text');
+            const xpText = document.getElementById('xp-text');
+            const levelProgressBar = document.getElementById('level-progress-bar');
+            const levelProgressBg = document.getElementById('level-progress-bg');
+
+            if (isBoy) {
+                if (scoreCard1) scoreCard1.className = 'bg-gradient-to-br from-[#F0F7FF] to-[#DBEAFE] rounded-[22px] px-4 py-3 border border-blue-200 border-b-4 border-b-blue-300 shadow-sm flex flex-col justify-between gap-2.5 transition-all hover:-translate-y-0.5';
+                if (scoreLabel1) scoreLabel1.className = 'text-[11px] font-extrabold text-blue-700 uppercase tracking-wider block';
+                if (statWallet) statWallet.className = 'text-2xl sm:text-3xl font-black text-blue-950 leading-none';
+                if (scoreUnit1) scoreUnit1.className = 'text-xs font-bold text-blue-700';
+                if (scoreCard1Icon) scoreCard1Icon.className = 'w-11 h-11 rounded-2xl bg-white/90 border border-blue-100 shadow-2xs flex items-center justify-center text-2xl shrink-0';
+                if (levelCapsuleBox) levelCapsuleBox.className = 'pt-2 border-t border-dashed border-blue-200/80 flex flex-col gap-1.5';
+                if (levelBadge) levelBadge.className = 'px-2 py-0.5 rounded-md bg-blue-100 text-blue-700';
+                if (levelXpText) levelXpText.className = 'text-blue-600 font-extrabold';
+                if (xpText) xpText.className = 'text-blue-500/80 font-bold hidden sm:inline';
+                if (levelProgressBar) levelProgressBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-300';
+                if (levelProgressBg) levelProgressBg.className = 'w-full h-1.5 bg-blue-200/70 rounded-full overflow-hidden transition-colors';
+            } else {
+                if (scoreCard1) scoreCard1.className = 'bg-gradient-to-br from-[#FAF8FF] to-[#EDE9FE] rounded-[22px] px-4 py-3 border border-violet-200 border-b-4 border-b-violet-300 shadow-sm flex flex-col justify-between gap-2.5 transition-all hover:-translate-y-0.5';
+                if (scoreLabel1) scoreLabel1.className = 'text-[11px] font-extrabold text-violet-600 uppercase tracking-wider block';
+                if (statWallet) statWallet.className = 'text-2xl sm:text-3xl font-black text-violet-900 leading-none';
+                if (scoreUnit1) scoreUnit1.className = 'text-xs font-bold text-violet-600';
+                if (scoreCard1Icon) scoreCard1Icon.className = 'w-11 h-11 rounded-2xl bg-white/90 border border-violet-100 shadow-2xs flex items-center justify-center text-2xl shrink-0';
+                if (levelCapsuleBox) levelCapsuleBox.className = 'pt-2 border-t border-dashed border-violet-200/80 flex flex-col gap-1.5';
+                if (levelBadge) levelBadge.className = 'px-2 py-0.5 rounded-md bg-violet-100 text-violet-700';
+                if (levelXpText) levelXpText.className = 'text-violet-600 font-extrabold';
+                if (xpText) xpText.className = 'text-violet-500/80 font-bold hidden sm:inline';
+                if (levelProgressBar) levelProgressBar.className = 'h-full bg-gradient-to-r from-violet-500 to-pink-500 rounded-full transition-all duration-300';
+                if (levelProgressBg) levelProgressBg.className = 'w-full h-1.5 bg-violet-200/70 rounded-full overflow-hidden transition-colors';
+            }
+        }
+
+        function getCheckedTasksSummary() {
+            let checkedCount = 0;
+            let mustCount = 0;
+            let taskPoints = 0;
+            const checkedItems = [];
+
+            getEffectiveTasks().forEach(t => {
+                const entry = state.todayChecks[t.id];
+                if (entry && entry.checked) {
+                    checkedCount++;
+                    if (t.group !== 'bonus') mustCount++;
+                    taskPoints = roundScore(taskPoints + t.points);
+                    checkedItems.push({ ...t, note: entry.note || '' });
+                }
+            });
+
+            return { checkedCount, mustCount, taskPoints, checkedItems };
+        }
+
+        function renderAll() {
+            const activeTheme = previewingTheme || state.theme || 'girl';
+            applyThemeVisuals(activeTheme);
+            const preset = THEME_PRESETS[activeTheme] || THEME_PRESETS.girl;
+
+            document.getElementById('student-name-display').textContent = state.studentName || preset.defaultTitle;
+
+            const childDisplayName = (state.nickname && state.nickname.trim()) || 
+                                     (state.studentName && state.studentName.trim() && state.studentName.trim() !== preset.defaultTitle ? state.studentName.trim() : '') ||
+                                     (currentSpaceId === 'default' ? '个人空间' : currentSpaceId);
+            document.getElementById('space-badge-text').textContent = childDisplayName;
+            updateSoundButtonVisual();
+
+            const d = new Date();
+            const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            document.getElementById('current-date-display').textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${weekDays[d.getDay()]}`;
+
+            animateNumber('stat-wallet', roundScore(state.totalPoints || 0), 300);
+            const xpTextEl = document.getElementById('xp-text');
+            if (xpTextEl) xpTextEl.textContent = `(累计 ${roundScore(state.totalXP || 0)} XP)`;
+            const totalXP = Math.max(0, state.totalXP || 0);
+            const levelIndex = Math.min(preset.levels.length - 1, Math.floor(totalXP / 150));
+            const levelNumber = levelIndex + 1;
+            const isMaxLevel = levelIndex >= preset.levels.length - 1;
+            const currentLevelXP = isMaxLevel ? 150 : (totalXP % 150);
+            const levelPct = isMaxLevel ? 100 : Math.min(100, Math.round((currentLevelXP / 150) * 100));
+
+            const levelBadge = document.getElementById('level-badge');
+            if (levelBadge) {
+                levelBadge.textContent = `Lv.${levelNumber}`;
+                levelBadge.title = `${preset.levels[levelIndex]} (累计经验 ${totalXP} XP)`;
+            }
+            const levelBar = document.getElementById('level-progress-bar');
+            if (levelBar) {
+                levelBar.style.width = `${levelPct}%`;
+            }
+            const levelXpText = document.getElementById('level-xp-text');
+            if (levelXpText) {
+                levelXpText.textContent = isMaxLevel ? '满级 ✨' : `${currentLevelXP}/150 XP`;
+            }
+
+            const { checkedCount, mustCount, taskPoints } = getCheckedTasksSummary();
+            const curSpeedPts = getSpecialBonusPoints('special_speed', 1.5);
+            const curNeatPts = getSpecialBonusPoints('special_neat', 1.5);
+            const bonusPoints = roundScore((state.todaySpeedBonus ? curSpeedPts : 0) + (state.todayNeatBonus ? curNeatPts : 0));
+            const previewTotal = roundScore(taskPoints + bonusPoints);
+            animateNumber('stat-pending', previewTotal, 260);
+
+            document.getElementById('must-progress-text').textContent = `${mustCount}/7`;
+            const pct = Math.round((mustCount / 7) * 100);
+            document.getElementById('must-progress-pct').textContent = `${pct}%`;
+            const circumference = 138.2;
+            document.getElementById('must-progress-ring').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+
+            const settledDaysCount = Object.keys(state.dailySettlements || {}).length;
+            document.getElementById('stat-streak-text').textContent = `🔥 已累计打卡 ${settledDaysCount} 天`;
+
+            const todayRecord = state.dailySettlements[state.currentDateKey];
+            const settledBanner = document.getElementById('settled-overwrite-banner');
+            const diffBadge = document.getElementById('stat-diff-badge');
+            const settledSub = document.getElementById('stat-settled-sub');
+            const bottomDiffPill = document.getElementById('bottom-bar-diff-pill');
+            const btnSettleText = document.getElementById('btn-settle-text');
+
+            if (todayRecord) {
+                const prevScore = roundScore(todayRecord.finalScore || 0);
+                const diff = roundScore(previewTotal - prevScore);
+
+                settledBanner.classList.remove('hidden');
+                document.getElementById('settled-banner-time').textContent = `上次提交：${todayRecord.timeStr || '今日'} (${prevScore}分 · 第${todayRecord.submitCount || 1}次)`;
+                settledSub.textContent = `上次已入账 ${prevScore} 分 · 以最后一次为准`;
+
+                diffBadge.classList.remove('hidden');
+                diffBadge.textContent = diff === 0 ? '与上次一致' : (diff > 0 ? `重算将 +${diff}分` : `重算将 ${diff}分`);
+
+                bottomDiffPill.classList.remove('hidden');
+                bottomDiffPill.textContent = `已入账 ${prevScore} 分 · 差额 ${diff >= 0 ? '+' + diff : diff} 分`;
+                btnSettleText.textContent = '重新覆盖核算';
+            } else {
+                settledBanner.classList.add('hidden');
+                diffBadge.classList.add('hidden');
+                bottomDiffPill.classList.add('hidden');
+                settledSub.textContent = '当日以最后一次提交为准';
+                btnSettleText.textContent = '家长最终核算';
+            }
+
+            document.getElementById('bottom-bar-summary').textContent = `今日已勾 ${checkedCount} 项 · 合计 ${previewTotal} 分`;
+
+            renderTaskGrids();
+            renderShop();
+            renderHistory();
+        }
+
+        function renderTaskGrids() {
+            const groups = {
+                school: document.getElementById('grid-school'),
+                selfstudy: document.getElementById('grid-selfstudy'),
+                habit: document.getElementById('grid-habit'),
+                bonus: document.getElementById('grid-bonus')
+            };
+            Object.values(groups).forEach(el => { if (el) el.innerHTML = ''; });
+
+            const allTasks = getEffectiveTasks();
+            let schoolTotal = 0;
+            let selfstudyTotal = 0;
+            let habitTotal = 0;
+            let maxBonus = 0;
+
+            allTasks.forEach(t => {
+                if (t.group === 'school') schoolTotal = roundScore(schoolTotal + t.points);
+                if (t.group === 'selfstudy') selfstudyTotal = roundScore(selfstudyTotal + t.points);
+                if (t.group === 'habit') habitTotal = roundScore(habitTotal + t.points);
+                if (t.group === 'bonus' && t.points > maxBonus) maxBonus = t.points;
+            });
+
+            const pSchool = document.getElementById('group-pill-school');
+            if (pSchool) pSchool.textContent = `基础必做 · 共 ${schoolTotal} 分`;
+            const pSelfstudy = document.getElementById('group-pill-selfstudy');
+            if (pSelfstudy) pSelfstudy.textContent = `拔高必做 · 共 ${selfstudyTotal} 分`;
+            const pHabit = document.getElementById('group-pill-habit');
+            if (pHabit) pHabit.textContent = `习惯必做 · +${habitTotal} 分`;
+            const pBonus = document.getElementById('group-pill-bonus');
+            if (pBonus) pBonus.textContent = `进阶大挑战 · 最高 +${maxBonus} 分`;
+
+            const colorStyles = {
+                sky: {
+                    unchecked: 'bg-white border border-sky-200/90 border-b-4 border-b-sky-300 hover:border-sky-300 hover:border-b-sky-400',
+                    checked: 'bg-gradient-to-br from-emerald-50 to-teal-50/75 border border-emerald-300 border-b-4 border-b-emerald-500 shadow-pastel-mint',
+                    iconBox: 'bg-sky-100 text-sky-600 border border-sky-200',
+                    badge: 'bg-sky-50 text-sky-700 border border-sky-200'
+                },
+                sakura: {
+                    unchecked: 'bg-white border border-pink-200/90 border-b-4 border-b-pink-300 hover:border-pink-300 hover:border-b-pink-400',
+                    checked: 'bg-gradient-to-br from-emerald-50 to-teal-50/75 border border-emerald-300 border-b-4 border-b-emerald-500 shadow-pastel-mint',
+                    iconBox: 'bg-pink-100 text-pink-600 border border-pink-200',
+                    badge: 'bg-pink-50 text-pink-700 border border-pink-200'
+                },
+                lavender: {
+                    unchecked: 'bg-white border border-violet-200/90 border-b-4 border-b-violet-300 hover:border-violet-300 hover:border-b-violet-400',
+                    checked: 'bg-gradient-to-br from-emerald-50 to-teal-50/75 border border-emerald-300 border-b-4 border-b-emerald-500 shadow-pastel-mint',
+                    iconBox: 'bg-violet-100 text-violet-600 border border-violet-200',
+                    badge: 'bg-violet-50 text-violet-700 border border-violet-200'
+                },
+                mint: {
+                    unchecked: 'bg-white border border-emerald-200/90 border-b-4 border-b-emerald-300 hover:border-emerald-300 hover:border-b-emerald-400',
+                    checked: 'bg-gradient-to-br from-emerald-50 to-teal-50/85 border border-emerald-300 border-b-4 border-b-emerald-500 shadow-pastel-mint',
+                    iconBox: 'bg-emerald-100 text-emerald-600 border border-emerald-200',
+                    badge: 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                },
+                butter: {
+                    unchecked: 'bg-white border border-amber-200/90 border-b-4 border-b-amber-300 hover:border-amber-300 hover:border-b-amber-400',
+                    checked: 'bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50/60 border border-amber-300 border-b-4 border-b-amber-500 shadow-pastel-butter',
+                    iconBox: 'bg-amber-100 text-amber-600 border border-amber-200',
+                    badge: 'bg-amber-100 text-amber-800 border border-amber-300'
+                }
+            };
+
+            allTasks.forEach(task => {
+                const container = groups[task.group];
+                if (!container) return;
+                const entry = state.todayChecks[task.id] || { checked: false, note: '' };
+                const isChecked = !!entry.checked;
+                const st = colorStyles[task.color] || colorStyles.lavender;
+                const isThreeColGroup = task.group === 'school' || task.group === 'selfstudy';
+
+                const card = document.createElement('div');
+                card.className = `card-3d-press cursor-pointer rounded-[26px] p-4 transition-all h-full flex flex-col justify-between ${isThreeColGroup ? 'min-h-[116px]' : 'min-h-[92px]'} ${isChecked ? st.checked : st.unchecked}`;
+                card.onclick = (e) => handleTaskClick(task.id, e);
+
+                const checkIconHtml = `<svg class="w-5 h-5 text-white animate-check-svg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+                const noteBadgeHtml = entry.note
+                    ? `<div class="mt-2 text-xs font-extrabold text-amber-800 bg-amber-100/80 border border-amber-300/80 rounded-xl px-2.5 py-1 truncate">📌 成果：${escapeHtml(entry.note)}</div>`
+                    : '';
+
+                if (isThreeColGroup) {
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-10 h-10 rounded-2xl ${isChecked ? 'bg-emerald-500 text-white border-emerald-400' : st.iconBox} border flex items-center justify-center text-lg shrink-0 transition-colors shadow-2xs">
+                                    ${isChecked ? checkIconHtml : task.icon}
+                                </div>
+                                <h3 class="font-black text-sm sm:text-[15px] ${isChecked ? 'text-emerald-950' : 'text-[#2E2545]'} truncate leading-tight">${escapeHtml(task.title)}</h3>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black border shrink-0 ${isChecked ? 'bg-emerald-500 text-white border-emerald-500' : st.badge}">
+                                +${task.points}分
+                            </span>
+                        </div>
+                        <p class="text-xs font-bold text-[#7E7494] mt-2.5 leading-relaxed line-clamp-2">${escapeHtml(task.desc)}</p>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-3 my-auto">
+                            <div class="flex items-start gap-3 min-w-0">
+                                <div class="w-11 h-11 rounded-2xl ${isChecked ? 'bg-emerald-500 text-white border-emerald-400' : st.iconBox} border flex items-center justify-center text-xl shrink-0 transition-colors">
+                                    ${isChecked ? checkIconHtml : task.icon}
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="font-black text-sm sm:text-base ${isChecked ? 'text-emerald-950' : 'text-[#2E2545]'} leading-snug">${escapeHtml(task.title)}</h3>
+                                    <p class="text-xs font-bold text-[#7E7494] mt-0.5 leading-relaxed">${escapeHtml(task.desc)}</p>
+                                    ${noteBadgeHtml}
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-black border shrink-0 ${isChecked ? 'bg-emerald-500 text-white border-emerald-500' : st.badge}">
+                                +${task.points}分
+                            </span>
+                        </div>
+                    `;
+                }
+                container.appendChild(card);
+            });
+        }
+
+        function handleTaskClick(taskId, event) {
+            const rawTask = TASKS.find(t => t.id === taskId);
+            if (!rawTask) return;
+            const task = { ...rawTask, points: getTaskPoints(rawTask) };
+            const entry = state.todayChecks[taskId] || { checked: false, note: '' };
+
+            if (task.group === 'bonus' && !entry.checked) {
+                currentBonusTaskId = taskId;
+                document.getElementById('bonus-modal-icon').textContent = task.icon;
+                document.getElementById('bonus-modal-title').textContent = task.title;
+                document.getElementById('bonus-modal-subtitle').textContent = `🌟 进阶悬赏挑战 · +${task.points} 分`;
+                document.getElementById('bonus-modal-confirm-btn').textContent = `🌟 完成打卡 (+${task.points}分)`;
+                document.getElementById('bonus-modal-label').textContent = task.prompt || '写下今天完成的挑战成果吧（选填）：';
+                document.getElementById('bonus-note-input').value = entry.note || '';
+                openModal('modal-bonus-note');
+                setTimeout(() => document.getElementById('bonus-note-input').focus(), 100);
+                return;
+            }
+
+            entry.checked = !entry.checked;
+            if (!entry.checked) entry.note = '';
+            state.todayChecks[taskId] = entry;
+            saveState();
+
+            if (entry.checked) {
+                playSound('check');
+                const { mustCount } = getCheckedTasksSummary();
+                if (mustCount === 7 && task.group !== 'bonus') {
+                    playSound('fanfare');
+                    fireConfetti(60);
+                    showToast('🎉 太棒啦！今日 7 项必做任务全部通关！');
+                } else {
+                    const clickX = event && event.clientX ? event.clientX : window.innerWidth / 2;
+                    const clickY = event && event.clientY ? event.clientY : window.innerHeight / 2;
+                    fireMicroConfetti(clickX, clickY);
+                }
+            } else {
+                playSound('uncheck');
+            }
+            renderAll();
+        }
+
+        function confirmBonusTask() {
+            if (!currentBonusTaskId) return;
+            const rawTask = TASKS.find(t => t.id === currentBonusTaskId);
+            const pts = rawTask ? getTaskPoints(rawTask) : 15;
+            const noteVal = document.getElementById('bonus-note-input').value.trim();
+            state.todayChecks[currentBonusTaskId] = {
+                checked: true,
+                note: noteVal
+            };
+            saveState();
+            closeModal('modal-bonus-note');
+            playSound('fanfare');
+            fireConfetti(45);
+            renderAll();
+            showToast(`🌟 进阶大挑战打卡成功 (+${pts}分)！`);
+        }
+
+        function openSettlementModal() {
+            document.getElementById('parent-speed-bonus').checked = !!state.todaySpeedBonus;
+            document.getElementById('parent-neat-bonus').checked = !!state.todayNeatBonus;
+            document.getElementById('settlement-pin').value = '';
+            document.getElementById('settlement-error').classList.add('hidden');
+
+            const sBadge = document.getElementById('settle-speed-pts-badge');
+            if (sBadge) sBadge.textContent = '+' + getSpecialBonusPoints('special_speed', 1.5) + ' 分';
+            const nBadge = document.getElementById('settle-neat-pts-badge');
+            if (nBadge) nBadge.textContent = '+' + getSpecialBonusPoints('special_neat', 1.5) + ' 分';
+
+            updateSettlementTotalPreview();
+            openModal('modal-settlement');
+        }
+
+        function updateSettlementTotalPreview() {
+            const { checkedItems, taskPoints } = getCheckedTasksSummary();
+            const speedBonus = document.getElementById('parent-speed-bonus').checked;
+            const neatBonus = document.getElementById('parent-neat-bonus').checked;
+            const curSpeed = getSpecialBonusPoints('special_speed', 1.5);
+            const curNeat = getSpecialBonusPoints('special_neat', 1.5);
+            const finalScore = roundScore(taskPoints + (speedBonus ? curSpeed : 0) + (neatBonus ? curNeat : 0));
+
+            document.getElementById('modal-pending-count').textContent = `已选 ${checkedItems.length} 项`;
+            const listEl = document.getElementById('modal-task-list');
+            if (checkedItems.length === 0) {
+                listEl.innerHTML = `<p class="text-xs font-bold text-[#7E7494] text-center py-3">今日暂未勾选任何任务（如以 0 分提交将退回今日已入账积分）</p>`;
+            } else {
+                listEl.innerHTML = checkedItems.map(item => `
+                    <div class="flex items-center justify-between text-xs font-bold text-[#2E2545] bg-white px-3 py-2 rounded-xl border border-violet-100">
+                        <span class="truncate">${item.icon} ${escapeHtml(item.title)} ${item.note ? `<span class="text-amber-700">(${escapeHtml(item.note)})</span>` : ''}</span>
+                        <span class="font-black text-violet-700 shrink-0">+${item.points}分</span>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('modal-total-score').textContent = `${finalScore} 分`;
+
+            const todayRecord = state.dailySettlements[state.currentDateKey];
+            const badgeEl = document.getElementById('modal-settle-badge');
+            const alertBox = document.getElementById('modal-overwrite-alert');
+            const detailEl = document.getElementById('modal-overwrite-detail');
+            const netDiffEl = document.getElementById('modal-net-diff');
+
+            if (todayRecord) {
+                const prevScore = roundScore(todayRecord.finalScore || 0);
+                const diff = roundScore(finalScore - prevScore);
+                const nextCount = (todayRecord.submitCount || 1) + 1;
+
+                badgeEl.textContent = `第 ${nextCount} 次提交覆盖`;
+                badgeEl.className = 'text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+                alertBox.classList.remove('hidden');
+                detailEl.innerHTML = `今日上次已入账 <b>${prevScore} 分</b> → 本次最终覆盖为 <b>${finalScore} 分</b>。<br>系统将自动按最后一次提交冲抵差额，总积分净变动：<b>${diff >= 0 ? '+' + diff : diff} 分</b>。`;
+
+                netDiffEl.classList.remove('hidden');
+                netDiffEl.textContent = `净变动 ${diff >= 0 ? '+' + diff : diff} 分`;
+                netDiffEl.className = `text-xs font-extrabold px-2 py-0.5 rounded-full ${diff >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'}`;
+            } else {
+                badgeEl.textContent = '今日首次提交';
+                badgeEl.className = 'text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-700';
+                alertBox.classList.add('hidden');
+                netDiffEl.classList.add('hidden');
+            }
+        }
+
+        function confirmSettlement() {
+            const pinInput = document.getElementById('settlement-pin').value.trim();
+            const errEl = document.getElementById('settlement-error');
+            if (pinInput !== state.pin) {
+                errEl.textContent = '❌ 家长 PIN 码不正确（初始默认为 1234）';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const speedBonus = document.getElementById('parent-speed-bonus').checked;
+            const neatBonus = document.getElementById('parent-neat-bonus').checked;
+            state.todaySpeedBonus = speedBonus;
+            state.todayNeatBonus = neatBonus;
+
+            const { checkedItems, taskPoints } = getCheckedTasksSummary();
+            const curSpeed = getSpecialBonusPoints('special_speed', 1.5);
+            const curNeat = getSpecialBonusPoints('special_neat', 1.5);
+            const finalScore = roundScore(taskPoints + (speedBonus ? curSpeed : 0) + (neatBonus ? curNeat : 0));
+
+            const dateKey = state.currentDateKey;
+            const prevRecord = state.dailySettlements[dateKey];
+            const prevScore = prevRecord ? roundScore(prevRecord.finalScore || 0) : 0;
+            const diff = roundScore(finalScore - prevScore);
+            const submitCount = prevRecord ? ((prevRecord.submitCount || 1) + 1) : 1;
+
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            state.totalPoints = Math.max(0, roundScore((state.totalPoints || 0) + diff));
+            state.totalXP = Math.max(0, roundScore((state.totalXP || 0) + diff));
+
+            state.dailySettlements[dateKey] = {
+                dateKey,
+                finalScore,
+                submitCount,
+                timeStr,
+                speedBonus,
+                neatBonus,
+                checksSnapshot: JSON.parse(JSON.stringify(state.todayChecks))
+            };
+
+            const detailParts = checkedItems.map(i => i.note ? `${i.title}(${i.note})` : i.title);
+            if (speedBonus) detailParts.push(`🚀高效不拖拉(+${curSpeed})`);
+            if (neatBonus) detailParts.push(`✍️书写工整(+${curNeat})`);
+
+            const ledgerEntry = {
+                id: `settle_${dateKey}`,
+                dateKey,
+                type: 'settlement',
+                title: submitCount > 1
+                    ? `${dateKey} 每日最终核算（第 ${submitCount} 次提交覆盖 · 以此为准）`
+                    : `${dateKey} 每日最终核算入账`,
+                desc: detailParts.length > 0 ? detailParts.join('、') : '当日0分覆盖核算',
+                points: finalScore,
+                time: `${dateKey} ${timeStr}`
+            };
+
+            const existingIdx = state.history.findIndex(h => h.type === 'settlement' && h.dateKey === dateKey);
+            if (existingIdx !== -1) {
+                state.history[existingIdx] = ledgerEntry;
+            } else {
+                state.history.unshift(ledgerEntry);
+            }
+
+            saveState();
+            closeModal('modal-settlement');
+            playSound('fanfare');
+            fireConfetti(80);
+            renderAll();
+
+            if (submitCount > 1) {
+                showToast(`✅ 已按最后一次提交覆盖！今日最终得分：${finalScore} 分（净变动 ${diff >= 0 ? '+' + diff : diff} 分）`);
+            } else {
+                showToast(`🎉 核算成功！今日入账 +${finalScore} 分！`);
+            }
+        }
+
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const activeTheme = previewingTheme || state.theme || 'girl';
+            const isBoy = activeTheme === 'boy';
+            const currentPts = Math.max(0, state.totalPoints || 0);
+
+            state.rewards.forEach(rw => {
+                const canAfford = currentPts >= rw.cost;
+                const diff = Math.max(0, rw.cost - currentPts);
+                const pct = rw.cost > 0 ? Math.min(99, Math.round((currentPts / rw.cost) * 100)) : 100;
+
+                const card = document.createElement('div');
+                const cardBorderClass = isBoy 
+                    ? 'border-blue-100 border-b-blue-200 hover:border-blue-200 hover:border-b-blue-300' 
+                    : 'border-violet-100 border-b-violet-200 hover:border-violet-200 hover:border-b-violet-300';
+                const iconBgClass = isBoy ? 'bg-blue-50 border-blue-200' : 'bg-pink-50 border-pink-200';
+                const costClass = isBoy ? 'text-blue-600' : 'text-pink-600';
+                const unaffordBtnClass = isBoy ? 'bg-blue-50 text-blue-700 border-blue-200/80' : 'bg-pink-50 text-pink-700 border-pink-200/80';
+                const progressTrackClass = isBoy ? 'bg-blue-100/70' : 'bg-pink-100/70';
+                const progressBarClass = isBoy ? 'bg-gradient-to-r from-blue-500 to-cyan-400' : 'bg-gradient-to-r from-pink-400 to-rose-400';
+                const progressTextClass = isBoy ? 'text-blue-600' : 'text-pink-600';
+
+                card.className = `card-3d-press bg-white/95 rounded-[26px] p-4 border border-b-4 ${cardBorderClass} shadow-pastel-sm flex flex-col justify-between gap-3`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-12 h-12 rounded-2xl ${iconBgClass} border flex items-center justify-center text-2xl shrink-0">
+                                ${escapeHtml(rw.icon || '🎁')}
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-black text-sm sm:text-base text-[#2E2545] truncate">${escapeHtml(rw.title)}</h4>
+                                <span class="text-xs font-extrabold ${costClass}">💎 ${rw.cost} 积分</span>
+                            </div>
+                        </div>
+                        <button onclick="redeemReward('${rw.id}')" class="px-3.5 py-2 rounded-2xl font-extrabold text-xs shrink-0 transition ${canAfford ? 'theme-primary-bg text-white shadow-xs hover:opacity-95 cursor-pointer' : `${unaffordBtnClass} border cursor-not-allowed`}">
+                            ${canAfford ? '✨ 立即兑换' : `还差 ${diff} 分`}
+                        </button>
+                    </div>
+                    ${!canAfford ? `
+                    <div class="pt-2.5 border-t border-dashed ${isBoy ? 'border-blue-100/90' : 'border-pink-100/90'}">
+                        <div class="flex items-center justify-between text-[11px] font-bold mb-1">
+                            <span class="${progressTextClass} font-extrabold flex items-center gap-1">
+                                <span>🎯</span>
+                                <span>心愿蓄力中</span>
+                            </span>
+                            <span class="text-[#7E7494] font-bold">已达成 <span class="${progressTextClass} font-black">${pct}%</span> · 还差 <span class="${progressTextClass} font-black">${diff}</span> 分</span>
+                        </div>
+                        <div class="w-full h-1.5 ${progressTrackClass} rounded-full overflow-hidden">
+                            <div class="h-full ${progressBarClass} rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function redeemReward(rewardId) {
+            const rw = state.rewards.find(r => r.id === rewardId);
+            if (!rw) return;
+            if (state.totalPoints < rw.cost) {
+                showToast('⚠️ 当前可用积分不足，继续打卡攒分吧！');
+                return;
+            }
+            state.totalPoints = roundScore(state.totalPoints - rw.cost);
+            const now = new Date();
+            const timeStr = `${state.currentDateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            state.history.unshift({
+                id: 'redeem_' + Date.now(),
+                type: 'redeem',
+                title: `兑换心愿：${rw.title}`,
+                desc: '积分商城心愿达成',
+                points: -rw.cost,
+                time: timeStr
+            });
+            saveState();
+            playSound('fanfare');
+            fireConfetti(50);
+            renderAll();
+            showToast(`🎁 成功兑换「${rw.title}」！`);
+        }
+
+        function updateAddTitleCount() {
+            const el = document.getElementById('reward-title-input');
+            const countEl = document.getElementById('reward-title-count');
+            if (el && countEl) {
+                const len = el.value.length;
+                countEl.textContent = `${len}/14字`;
+                countEl.className = len >= 15 ? 'text-[11px] font-bold text-rose-500' : 'text-[11px] font-bold text-violet-500';
+            }
+        }
+
+        function updateEditTitleCount() {
+            const el = document.getElementById('edit-reward-title-input');
+            const countEl = document.getElementById('edit-reward-title-count');
+            if (el && countEl) {
+                const len = el.value.length;
+                countEl.textContent = `${len}/14字`;
+                countEl.className = len >= 15 ? 'text-[11px] font-bold text-rose-500' : 'text-[11px] font-bold text-violet-500';
+            }
+        }
+
+        function openAddRewardModal() {
+            document.getElementById('reward-title-input').value = '';
+            document.getElementById('reward-cost-input').value = '50';
+            document.getElementById('reward-pin-input').value = '';
+            document.getElementById('reward-error').classList.add('hidden');
+            updateAddTitleCount();
+            openModal('modal-add-reward');
+        }
+
+        function saveNewReward() {
+            const icon = document.getElementById('reward-icon-input').value.trim() || '🎁';
+            const title = document.getElementById('reward-title-input').value.trim();
+            const cost = parseInt(document.getElementById('reward-cost-input').value, 10);
+            const pin = document.getElementById('reward-pin-input').value.trim();
+            const errEl = document.getElementById('reward-error');
+
+            if (!title) {
+                errEl.textContent = '❌ 请输入心愿名称';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (title.length >= 15) {
+                errEl.textContent = `❌ 心愿描述必须少于15个字（不含15，当前 ${title.length} 字）`;
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (isNaN(cost) || cost <= 0) {
+                errEl.textContent = '❌ 所需积分必须为大于0的整数';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (pin !== state.pin) {
+                errEl.textContent = '❌ 家长 PIN 码不正确';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            state.rewards.push({ id: 'rw_' + Date.now(), title, cost, icon });
+            saveState();
+            closeModal('modal-add-reward');
+            renderAll();
+            showToast('🎁 新心愿奖品已上架！');
+        }
+
+        function renderManageRewardsList() {
+            const listEl = document.getElementById('manage-rewards-list');
+            if (!listEl) return;
+            if (!state.rewards || state.rewards.length === 0) {
+                listEl.innerHTML = '<div class="text-center py-6 text-xs font-bold text-[#7E7494]">暂无可调整的心愿奖品</div>';
+                return;
+            }
+            listEl.innerHTML = state.rewards.map(rw => `
+                <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-[#FAF8FF] border border-violet-100">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="text-xl shrink-0">${escapeHtml(rw.icon || '🎁')}</span>
+                        <div class="min-w-0">
+                            <p class="font-black text-xs text-[#2E2545] truncate">${escapeHtml(rw.title)}</p>
+                            <span class="text-[11px] font-extrabold text-pink-600">💎 ${rw.cost} 积分</span>
+                        </div>
+                    </div>
+                    <button onclick="startEditRewardFromManage('${rw.id}')" class="px-3 py-1.5 rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-800 font-black text-xs transition shrink-0">
+                        ✏️ 调整
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openManageRewardsModal() {
+            renderManageRewardsList();
+            openModal('modal-manage-rewards');
+        }
+
+        function startEditRewardFromManage(rewardId) {
+            closeModal('modal-manage-rewards');
+            openEditRewardModal(rewardId);
+        }
+
+        function openEditRewardModal(rewardId) {
+            const rw = state.rewards.find(r => r.id === rewardId);
+            if (!rw) {
+                showToast('❌ 未找到该心愿');
+                return;
+            }
+            document.getElementById('edit-reward-id').value = rw.id;
+            document.getElementById('edit-reward-icon-input').value = rw.icon || '🎁';
+            document.getElementById('edit-reward-title-input').value = rw.title || '';
+            document.getElementById('edit-reward-cost-input').value = rw.cost || 50;
+            document.getElementById('edit-reward-pin-input').value = '';
+            document.getElementById('edit-reward-error').classList.add('hidden');
+            updateEditTitleCount();
+            openModal('modal-edit-reward');
+        }
+
+        function submitEditReward() {
+            const rewardId = document.getElementById('edit-reward-id').value;
+            const rw = state.rewards.find(r => r.id === rewardId);
+            const errEl = document.getElementById('edit-reward-error');
+
+            if (!rw) {
+                errEl.textContent = '❌ 未找到该心愿记录';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const icon = document.getElementById('edit-reward-icon-input').value.trim() || '🎁';
+            const title = document.getElementById('edit-reward-title-input').value.trim();
+            const cost = parseInt(document.getElementById('edit-reward-cost-input').value, 10);
+            const pin = document.getElementById('edit-reward-pin-input').value.trim();
+
+            if (!title) {
+                errEl.textContent = '❌ 心愿描述不能为空';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (title.length >= 15) {
+                errEl.textContent = `❌ 心愿描述必须少于15个字（不含15，当前 ${title.length} 字）`;
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (isNaN(cost) || cost <= 0) {
+                errEl.textContent = '❌ 所需积分必须为大于0的整数';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (pin !== state.pin) {
+                errEl.textContent = '❌ 家长 PIN 码不正确';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            rw.title = title;
+            rw.cost = cost;
+            rw.icon = icon;
+
+            saveState();
+            closeModal('modal-edit-reward');
+            renderAll();
+            showToast(`✏️ 已成功调整心愿「${title}」及积分！`);
+        }
+
+        function renderHistory() {
+            const listEl = document.getElementById('history-list');
+            const countEl = document.getElementById('history-count');
+            if (!listEl) return;
+
+            countEl.textContent = `共 ${state.history.length} 条记录`;
+            if (state.history.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-8 text-xs font-bold text-[#7E7494]">暂无账本记录，完成今日打卡并由家长核算后将在此显示 ✨</div>`;
+                return;
+            }
+
+            listEl.innerHTML = state.history.map(item => {
+                const isPos = item.points >= 0;
+                return `
+                    <div class="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#FAF8FF] border border-violet-100">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-black text-xs sm:text-sm text-[#2E2545]">${escapeHtml(item.title)}</span>
+                                <span class="text-[11px] font-bold text-[#7E7494]">${escapeHtml(item.time || '')}</span>
+                            </div>
+                            <p class="text-xs font-bold text-[#6E6385] mt-0.5 truncate">${escapeHtml(item.desc || '')}</p>
+                        </div>
+                        <span class="font-black text-sm sm:text-base shrink-0 ${isPos ? 'text-emerald-600' : 'text-rose-500'}">
+                            ${isPos ? '+' + item.points : item.points} 分
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openManualAdjustModal() {
+            document.getElementById('adjust-points-input').value = '2';
+            document.getElementById('adjust-reason-input').value = '';
+            document.getElementById('adjust-pin-input').value = '';
+            document.getElementById('adjust-error').classList.add('hidden');
+            openModal('modal-manual-adjust');
+        }
+
+        function confirmManualAdjust() {
+            const pts = roundScore(parseFloat(document.getElementById('adjust-points-input').value) || 0);
+            const reason = document.getElementById('adjust-reason-input').value.trim() || '家长手动调整';
+            const pin = document.getElementById('adjust-pin-input').value.trim();
+            const errEl = document.getElementById('adjust-error');
+
+            if (pin !== state.pin) {
+                errEl.textContent = '❌ 家长 PIN 码不正确';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (pts === 0) {
+                errEl.textContent = '❌ 调整分值不能为 0';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            state.totalPoints = Math.max(0, roundScore(state.totalPoints + pts));
+            if (pts > 0) state.totalXP = roundScore((state.totalXP || 0) + pts);
+
+            const now = new Date();
+            const timeStr = `${state.currentDateKey} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            state.history.unshift({
+                id: 'adj_' + Date.now(),
+                type: 'adjust',
+                title: pts > 0 ? '家长手动奖励加分' : '家长手动扣分调整',
+                desc: reason,
+                points: pts,
+                time: timeStr
+            });
+
+            saveState();
+            closeModal('modal-manual-adjust');
+            renderAll();
+            showToast(`⚡ 已完成积分调整 (${pts > 0 ? '+' + pts : pts} 分)`);
+        }
+
+        function openSettingsModal() {
+            previewingTheme = state.theme || 'girl';
+            updateThemeSelectorCards(previewingTheme);
+            updateSoundButtonVisual();
+            document.getElementById('set-child-nickname').value = state.nickname || '';
+            document.getElementById('set-child-name').value = state.studentName || THEME_PRESETS[previewingTheme].defaultTitle;
+            document.getElementById('set-old-pin').value = '';
+            document.getElementById('set-new-pin').value = '';
+            document.getElementById('settings-msg').classList.add('hidden');
+            openModal('modal-settings');
+        }
+
+        function previewThemeSelection(themeKey) {
+            previewingTheme = themeKey;
+            updateThemeSelectorCards(themeKey);
+            const nameInput = document.getElementById('set-child-name');
+            const currentVal = nameInput.value.trim();
+            if (!currentVal || currentVal === THEME_PRESETS.girl.defaultTitle || currentVal === THEME_PRESETS.boy.defaultTitle) {
+                nameInput.value = THEME_PRESETS[themeKey].defaultTitle;
+            }
+            applyThemeVisuals(themeKey);
+            renderShop();
+        }
+
+        function updateThemeSelectorCards(themeKey) {
+            const girlBtn = document.getElementById('theme-card-girl');
+            const boyBtn = document.getElementById('theme-card-boy');
+            if (themeKey === 'boy') {
+                boyBtn.className = 'p-3.5 rounded-2xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer bg-[#F4F9FF] border-blue-500 ring-2 ring-blue-200';
+                girlBtn.className = 'p-3.5 rounded-2xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer bg-[#FAF8FF] border-violet-200 hover:border-violet-400';
+            } else {
+                girlBtn.className = 'p-3.5 rounded-2xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer bg-[#FAF8FF] border-[#8B7CF6] ring-2 ring-violet-200';
+                boyBtn.className = 'p-3.5 rounded-2xl border-2 text-left transition-all flex items-center gap-3 cursor-pointer bg-[#F4F9FF] border-sky-200 hover:border-sky-400';
+            }
+        }
+
+        function cancelSettingsModal() {
+            previewingTheme = null;
+            closeModal('modal-settings');
+            renderAll();
+        }
+
+        function saveSettings() {
+            const oldPin = document.getElementById('set-old-pin').value.trim();
+            const newPin = document.getElementById('set-new-pin').value.trim();
+            const msgEl = document.getElementById('settings-msg');
+
+            if (oldPin !== state.pin) {
+                msgEl.textContent = '❌ 请输入正确的当前家长 PIN 码（初始默认为 1234）';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+            if (newPin && !/^\d{4}$/.test(newPin)) {
+                msgEl.textContent = '❌ 新 PIN 码必须是 4 位数字';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+
+            state.theme = previewingTheme || state.theme || 'girl';
+            previewingTheme = null;
+            state.nickname = document.getElementById('set-child-nickname').value.trim();
+            state.studentName = document.getElementById('set-child-name').value.trim() || THEME_PRESETS[state.theme].defaultTitle;
+            if (newPin) state.pin = newPin;
+
+            saveState();
+            closeModal('modal-settings');
+            renderAll();
+            showToast('⚙️ 设置与主题已保存生效！');
+        }
+
+        function openTaskPointsModal() {
+            const container = document.getElementById('task-points-list');
+            if (!container) return;
+
+            const currentPts = state.customTaskPoints || {};
+            const groups = [
+                { id: 'school', title: '🎒 每日必做 · 校内基础清零', desc: '数学、语文、英语基础项（默认每项 1 分）' },
+                { id: 'selfstudy', title: '📖 每日自学 · 习惯养成', desc: '英语、数学、语文自律拓展（默认每项 2 分）' },
+                { id: 'habit', title: '🌟 个人生活与好习惯', desc: '日常好习惯自律（默认 0.5 分）' },
+                { id: 'bonus', title: '🏆 进阶大挑战 · 额外激励', desc: '书籍、英语、数学、语文高阶突破（默认每项 15 分）' },
+                { id: 'settle_bonus', title: '⭐ 家长晚间复核 · 专属特权加成', desc: '高效不拖拉早鸟奖与卷面书写工整奖（默认每项 1.5 分）' }
+            ];
+
+            const allItems = getAllConfigurableItems();
+            let html = '';
+            groups.forEach(g => {
+                const groupItems = allItems.filter(t => t.group === g.id);
+                if (groupItems.length === 0) return;
+
+                html += '<div class="pt-3.5 first:pt-0">' +
+                    '<div class="mb-2">' +
+                        '<span class="text-xs font-black text-[#2E2545] tracking-wide">' + g.title + '</span>' +
+                        '<span class="text-[10px] font-bold text-[#7E7494] ml-1.5">' + g.desc + '</span>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">';
+
+                groupItems.forEach(item => {
+                    const val = currentPts[item.id] !== undefined ? currentPts[item.id] : item.points;
+                    const itemTitle = item.title || '未命名项目';
+                    const itemDesc = item.desc || '';
+                    html += '<div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-amber-200 transition gap-2.5">' +
+                        '<div class="flex items-center gap-2.5 min-w-0 pr-1">' +
+                            '<span class="text-lg shrink-0">' + item.icon + '</span>' +
+                            '<div class="min-w-0">' +
+                                '<p class="text-xs font-black text-[#2E2545] truncate">' + itemTitle + '</p>' +
+                                (itemDesc ? '<p class="text-[10px] font-bold text-[#7E7494] truncate">' + itemDesc + '</p>' : '') +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-1 shrink-0">' +
+                            '<span class="text-xs font-extrabold text-amber-600">+</span>' +
+                            '<input type="number" step="0.5" min="0.5" max="200" id="task-pts-' + item.id + '" data-item-id="' + item.id + '" data-default-pts="' + item.points + '" value="' + val + '" class="w-16 px-2 py-1 text-center font-black text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-200 text-[#2E2545]">' +
+                            '<span class="text-[10px] font-bold text-[#7E7494]">分</span>' +
+                        '</div>' +
+                    '</div>';
+                });
+
+                html += '</div></div>';
+            });
+
+            container.innerHTML = html;
+            document.getElementById('task-points-pin').value = '';
+            const errEl = document.getElementById('task-points-error');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+            openModal('modal-custom-task-points');
+        }
+
+        function resetDefaultTaskPoints() {
+            getAllConfigurableItems().forEach(item => {
+                const input = document.getElementById('task-pts-' + item.id);
+                if (input) {
+                    input.value = item.points;
+                }
+            });
+            const errEl = document.getElementById('task-points-error');
+            errEl.classList.remove('hidden');
+            errEl.className = 'text-xs font-extrabold text-emerald-600 text-center';
+            errEl.textContent = '✅ 已重置为预设默认分值，请输入 PIN 码后点击“保存分值”即可生效！';
+        }
+
+        function saveCustomTaskPoints() {
+            const pinVal = document.getElementById('task-points-pin').value.trim();
+            const errEl = document.getElementById('task-points-error');
+            errEl.className = 'text-xs font-extrabold text-rose-600 text-center';
+
+            if (pinVal !== state.pin) {
+                errEl.textContent = '❌ 请输入正确的家长 4 位 PIN 码（默认 1234）';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const newCustomPoints = {};
+            let hasInvalid = false;
+            const allItems = getAllConfigurableItems();
+
+            for (const item of allItems) {
+                const input = document.getElementById('task-pts-' + item.id);
+                if (input) {
+                    const parsed = parseFloat(input.value);
+                    if (isNaN(parsed) || parsed <= 0 || parsed > 500) {
+                        hasInvalid = true;
+                        break;
+                    }
+                    const cleanVal = Math.round(parsed * 10) / 10;
+                    if (cleanVal !== item.points) {
+                        newCustomPoints[item.id] = cleanVal;
+                    }
+                }
+            }
+
+            if (hasInvalid) {
+                errEl.textContent = '❌ 分值必须在 0.5 到 500 之间，请检查输入';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            state.customTaskPoints = newCustomPoints;
+            saveState();
+            closeModal('modal-custom-task-points');
+            renderAll();
+            playSound('success');
+            showToast('🎯 任务与专属加成分值已成功更新并生效！');
+        }
+
+        function openShareModal() {
+            document.getElementById('space-id-input').value = currentSpaceId === 'default' ? '' : currentSpaceId;
+            const curNameEl = document.getElementById('modal-current-space-name');
+            if (curNameEl) {
+                const childDisplayName = (state.nickname && state.nickname.trim()) || 
+                                         (state.studentName && state.studentName.trim() && state.studentName.trim() !== '星光少女成长打卡站' && state.studentName.trim() !== '星际少年成长打卡站' ? state.studentName.trim() : '') ||
+                                         (currentSpaceId === 'default' ? '默认个人空间' : currentSpaceId);
+                curNameEl.textContent = childDisplayName;
+            }
+            openModal('modal-share');
+        }
+
+        function switchFamilySpace() {
+            const raw = document.getElementById('space-id-input').value.trim().toLowerCase();
+            const targetSpace = raw || 'default';
+            if (!/^[a-z0-9_-]{1,24}$/.test(targetSpace)) {
+                showToast('⚠️ 空间暗号请使用 1-24 位字母、数字或下划线');
+                return;
+            }
+            localStorage.setItem('STARLIGHT_LAST_SPACE_ID', targetSpace);
+
+            try {
+                const url = new URL(window.location.href);
+                if (targetSpace === 'default') {
+                    url.searchParams.delete('space');
+                } else {
+                    url.searchParams.set('space', targetSpace);
+                }
+                window.history.replaceState({}, '', url.toString());
+            } catch (e) {}
+
+            loadState();
+            closeModal('modal-share');
+            renderAll();
+            const isBoy = (state.theme || 'girl') === 'boy';
+            const spaceEmoji = isBoy ? '👦' : '👧';
+            const childName = (state.nickname && state.nickname.trim()) || (targetSpace === 'default' ? '默认个人空间' : targetSpace);
+            showToast(`${spaceEmoji} 已进入个人独立空间：「${childName}」`);
+        }
+
+        function resetTodayBoardWithPin() {
+            const oldPin = document.getElementById('set-old-pin').value.trim();
+            const msgEl = document.getElementById('settings-msg');
+            if (oldPin !== state.pin) {
+                msgEl.textContent = '❌ 请先输入正确的当前家长 PIN 码';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+
+            TASKS.forEach(t => {
+                state.todayChecks[t.id] = { checked: false, note: '' };
+            });
+            state.todaySpeedBonus = false;
+            state.todayNeatBonus = false;
+            saveState();
+            closeModal('modal-settings');
+            renderAll();
+            showToast('🔄 今日卡片勾选已清空（如需同步冲抵今日已入账积分，请再点一次家长核算提交）');
+        }
+
+        function exportDataJSON() {
+            const str = JSON.stringify(state, null, 2);
+            const blob = new Blob([str], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `星光成长打卡备份_${state.currentDateKey}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('📥 备份文件已下载');
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (typeof data.totalPoints === 'number') {
+                        state = { ...state, ...data };
+                        saveState();
+                        renderAll();
+                        showToast('🎉 数据恢复成功！');
+                    } else {
+                        showToast('❌ 备份文件格式不正确');
+                    }
+                } catch (err) {
+                    showToast('❌ 解析备份文件失败');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function switchTab(tab) {
+            ['tasks', 'shop', 'history'].forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tab) {
+                    sec.classList.remove('hidden');
+                    btn.className = 'py-2 px-3 rounded-[15px] font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 theme-primary-bg text-white shadow-sm';
+                } else {
+                    sec.classList.add('hidden');
+                    btn.className = 'py-2 px-3 rounded-[15px] font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 text-[#6E6385] hover:bg-violet-50/70';
+                }
+            });
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeModal(id) {
+            let el = null;
+            if (typeof id === 'string') {
+                el = document.getElementById(id);
+            } else if (id && id.nodeType) {
+                el = id.closest ? id.closest('[id^="modal-"]') : id;
+            }
+            if (!el) return;
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+            const openModals = document.querySelectorAll('[id^="modal-"].flex');
+            if (openModals.length === 0) {
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = 'bg-[#2E2545]/95 text-white text-xs sm:text-sm font-extrabold px-4 py-3 rounded-2xl shadow-pastel border border-violet-300/30 animate-pop pointer-events-auto';
+            el.textContent = msg;
+            container.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.25s ease';
+                setTimeout(() => el.remove(), 250);
+            }, 2500);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animFrame = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function fireConfetti(count) {
+            const activeTheme = previewingTheme || state.theme || 'girl';
+            const colors = THEME_PRESETS[activeTheme]?.confettiColors || THEME_PRESETS.girl.confettiColors;
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: window.innerWidth * (0.2 + Math.random() * 0.6),
+                    y: window.innerHeight * 0.4,
+                    vx: (Math.random() - 0.5) * 13,
+                    vy: -Math.random() * 12 - 4,
+                    size: Math.random() * 9 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    vRot: (Math.random() - 0.5) * 10,
+                    alpha: 1
+                });
+            }
+            if (!animFrame) loopConfetti();
+        }
+
+        function fireMicroConfetti(originX, originY) {
+            const activeTheme = previewingTheme || state.theme || 'girl';
+            const colors = THEME_PRESETS[activeTheme]?.confettiColors || THEME_PRESETS.girl.confettiColors;
+            const x = originX || window.innerWidth / 2;
+            const y = originY || window.innerHeight / 2;
+            for (let i = 0; i < 7; i++) {
+                particles.push({
+                    x: x + (Math.random() - 0.5) * 16,
+                    y: y + (Math.random() - 0.5) * 16,
+                    vx: (Math.random() - 0.5) * 7,
+                    vy: -Math.random() * 5 - 2.5,
+                    size: Math.random() * 4 + 3.5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    vRot: (Math.random() - 0.5) * 14,
+                    alpha: 1
+                });
+            }
+            if (!animFrame) loopConfetti();
+        }
+
+        const numberAnimators = {};
+        function animateNumber(elementId, targetVal, duration = 300) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const target = Number(targetVal) || 0;
+            const currentText = el.textContent.trim();
+            const current = parseFloat(currentText) || 0;
+
+            if (current === target) return;
+
+            if (numberAnimators[elementId]) {
+                cancelAnimationFrame(numberAnimators[elementId]);
+            }
+
+            const startTime = performance.now();
+            const startVal = current;
+            const diff = target - startVal;
+
+            function step(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                const eased = 1 - (1 - progress) * (1 - progress);
+                const currentVal = startVal + diff * eased;
+
+                const displayVal = (target % 1 === 0 && startVal % 1 === 0)
+                    ? Math.round(currentVal)
+                    : Math.round(currentVal * 10) / 10;
+
+                el.textContent = displayVal;
+
+                if (progress < 1) {
+                    numberAnimators[elementId] = requestAnimationFrame(step);
+                } else {
+                    el.textContent = target;
+                    delete numberAnimators[elementId];
+                }
+            }
+
+            numberAnimators[elementId] = requestAnimationFrame(step);
+        }
+
+        function loopConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.35;
+                p.rot += p.vRot;
+                p.alpha -= 0.012;
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rot * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.roundRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65, 3);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            particles = particles.filter(p => p.alpha > 0 && p.y < canvas.height + 30);
+            if (particles.length > 0) {
+                animFrame = requestAnimationFrame(loopConfetti);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                animFrame = null;
+            }
+        }
+
+        window.onload = function() {
+            loadState();
+            renderAll();
+        };
+    </script>
+</body>
+</html>

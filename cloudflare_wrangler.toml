@@ -1,0 +1,10 @@
+name = "starlight-checkin"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+# Cloudflare KV 状态持久化存储绑定
+[[kv_namespaces]]
+binding = "STARLIGHT_KV"
+id = "26abdf60540547d7a732f49312be8f4b"
