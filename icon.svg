@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- 深邃梦幻夜空渐变 -->
+    <linearGradient id="nightSky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080C1B" />
+      <stop offset="35%" stop-color="#111638" />
+      <stop offset="70%" stop-color="#1E1B4B" />
+      <stop offset="100%" stop-color="#311042" />
+    </linearGradient>
+
+    <!-- 柔金月牙渐变 -->
+    <linearGradient id="moonGlowGrad" x1="20%" y1="10%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="30%" stop-color="#FEF08A" />
+      <stop offset="75%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <!-- 星芒柔白渐变 -->
+    <linearGradient id="starLightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <!-- 梦幻星云光晕渐变 -->
+    <radialGradient id="nebulaGlow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#818CF8" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#C084FC" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- 柔和发光滤镜 -->
+    <filter id="glowFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur1" />
+      <feGaussianBlur stdDeviation="20" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- 微星点滤镜 -->
+    <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. 圆角应用底座（符合 Apple iOS 与 Android Maskable 图标规范） -->
+  <rect width="512" height="512" rx="118" fill="url(#nightSky)" />
+
+  <!-- 2. 星云扩散光晕 -->
+  <circle cx="260" cy="240" r="230" fill="url(#nebulaGlow)" />
+
+  <!-- 3. 背景璀璨微星群 -->
+  <g opacity="0.85">
+    <circle cx="90" cy="110" r="2" fill="#FFFFFF" opacity="0.6" />
+    <circle cx="140" cy="80" r="3" fill="#FDE047" opacity="0.75" filter="url(#starGlow)" />
+    <circle cx="220" cy="65" r="1.8" fill="#FFFFFF" opacity="0.5" />
+    <circle cx="370" cy="85" r="2.5" fill="#FDE047" opacity="0.7" />
+    <circle cx="435" cy="130" r="2" fill="#FFFFFF" opacity="0.6" />
+    <circle cx="440" cy="280" r="3" fill="#C084FC" opacity="0.8" filter="url(#starGlow)" />
+    <circle cx="400" cy="390" r="2.2" fill="#FFFFFF" opacity="0.55" />
+    <circle cx="105" cy="380" r="2" fill="#FDE047" opacity="0.6" />
+    <circle cx="80" cy="260" r="2.5" fill="#C084FC" opacity="0.7" />
+    <circle cx="165" cy="440" r="1.8" fill="#FFFFFF" opacity="0.45" />
+    <circle cx="320" cy="445" r="2.2" fill="#FDE047" opacity="0.75" />
+  </g>
+
+  <!-- 4. 梦幻星轨弧线 -->
+  <path d="M 80 340 C 140 430, 360 450, 440 310" stroke="#818CF8" stroke-width="1.5" stroke-dasharray="4 8" opacity="0.35" fill="none" />
+  <path d="M 100 200 C 170 120, 340 110, 420 180" stroke="#C084FC" stroke-width="1.2" stroke-dasharray="3 7" opacity="0.28" fill="none" />
+
+  <!-- 5. 主角：皎洁温润的月牙（采用几何布尔差集造型） -->
+  <path d="M 285 105
+           C 185 105, 110 185, 110 285
+           C 110 375, 175 448, 260 460
+           C 180 435, 145 340, 160 255
+           C 175 180, 230 125, 285 105 Z"
+        fill="url(#moonGlowGrad)"
+        filter="url(#glowFilter)" />
+
+  <!-- 6. 月弯怀抱中的守护四角主星 -->
+  <g transform="translate(330, 225)" filter="url(#glowFilter)">
+    <!-- 主星辉光四角星芒 -->
+    <path d="M 0 -48 Q 0 0, -48 0 Q 0 0, 0 48 Q 0 0, 48 0 Q 0 0, 0 -48 Z" fill="url(#starLightGrad)" />
+    <!-- 核心微星光核 -->
+    <circle cx="0" cy="0" r="9" fill="#FFFFFF" />
+  </g>
+
+  <!-- 7. 伴星一（右上轻盈四角小星） -->
+  <g transform="translate(395, 150) scale(0.48)" filter="url(#starGlow)">
+    <path d="M 0 -42 Q 0 0, -42 0 Q 0 0, 0 42 Q 0 0, 42 0 Q 0 0, 0 -42 Z" fill="#FFFFFF" />
+  </g>
+
+  <!-- 8. 伴星二（左下灵动四角小星） -->
+  <g transform="translate(195, 375) scale(0.38)" filter="url(#starGlow)">
+    <path d="M 0 -42 Q 0 0, -42 0 Q 0 0, 0 42 Q 0 0, 42 0 Q 0 0, 0 -42 Z" fill="#FEF08A" />
+  </g>
+
+  <!-- 9. 伴星三（右下晶莹星点） -->
+  <g transform="translate(365, 335) scale(0.32)" filter="url(#starGlow)">
+    <path d="M 0 -42 Q 0 0, -42 0 Q 0 0, 0 42 Q 0 0, 42 0 Q 0 0, 0 -42 Z" fill="#FFFFFF" />
+  </g>
+
+  <!-- 10. 柔和星光光斑（点睛高光） -->
+  <circle cx="240" cy="200" r="3.5" fill="#FFFFFF" opacity="0.9" filter="url(#starGlow)" />
+  <circle cx="275" cy="310" r="2.5" fill="#FDE047" opacity="0.85" />
+  <circle cx="315" cy="160" r="3" fill="#FFFFFF" opacity="0.75" />
+</svg>
