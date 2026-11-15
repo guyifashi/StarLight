@@ -25,7 +25,7 @@ manifest_dict = {
 
 manifest_json_str = json.dumps(manifest_dict, ensure_ascii=False, indent=2)
 
-sw_content = """const CACHE_NAME = 'starlight-pwa-v1';
+sw_content = """const CACHE_NAME = 'starlight-pwa-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -51,6 +51,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // 1. KV API 请求：Network-first，断网返回离线标记
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(event.request).catch(() => {
@@ -62,23 +63,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 2. 静态页面与 CDN 资源：Stale-While-Revalidate + Cache fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
           const resClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
         }
         return networkResponse;
-      }).catch(() => caches.match('/'));
+      }).catch(() => null);
+
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      return fetchPromise.then((networkResponse) => {
+        if (networkResponse) return networkResponse;
+        return caches.match('/');
+      });
     })
   );
 });
@@ -124,6 +127,7 @@ worker_code = f"""export default {{
         headers: {{
           'Content-Type': 'application/manifest+json; charset=UTF-8',
           'Cache-Control': 'public, max-age=86400',
+          'X-Content-Type-Options': 'nosniff',
         }},
       }});
     }}
@@ -137,6 +141,7 @@ worker_code = f"""export default {{
           'Content-Type': 'application/javascript; charset=UTF-8',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Service-Worker-Allowed': '/',
+          'X-Content-Type-Options': 'nosniff',
         }},
       }});
     }}
@@ -186,6 +191,12 @@ worker_code = f"""export default {{
 
       if (request.method === 'POST') {{
         try {{
+          // 限制单次 Payload 大小（最大 512KB）
+          const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+          if (contentLength > 524288) {{
+            return jsonResponse({{ ok: false, error: 'Payload too large (max 512KB)' }}, 413);
+          }}
+
           const body = await request.json();
           if (!body || typeof body !== 'object') {{
             return jsonResponse({{ ok: false, error: 'Invalid payload' }}, 400);
@@ -211,6 +222,8 @@ worker_code = f"""export default {{
       headers: {{
         'Content-Type': 'text/html; charset=UTF-8',
         'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
       }},
     }});
   }},
@@ -223,6 +236,7 @@ function jsonResponse(obj, status = 200) {{
       'Content-Type': 'application/json; charset=UTF-8',
       'Cache-Control': 'no-store',
       'Access-Control-Allow-Origin': '*',
+      'X-Content-Type-Options': 'nosniff',
     }},
   }});
 }}

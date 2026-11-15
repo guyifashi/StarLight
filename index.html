@@ -460,7 +460,7 @@
     </div>
 
     <!-- Main Content Container -->
-    <main class="max-w-4xl mx-auto px-4 mt-4 space-y-6">
+    <main class="max-w-4xl mx-auto px-4 mt-4 space-y-6 pb-28 sm:pb-32">
 
         <!-- TAB 1: DAILY CHECK-IN -->
         <section id="tab-tasks" class="space-y-7">
@@ -606,7 +606,7 @@
     </main>
 
     <!-- Floating Bottom Parent Settlement Bar -->
-    <div class="fixed bottom-4 inset-x-0 z-40 px-4 pointer-events-none">
+    <div class="fixed bottom-4 inset-x-0 z-40 px-4 pointer-events-none" style="bottom: max(1rem, env(safe-area-inset-bottom, 1rem));">
         <div id="floating-bottom-bar" class="max-w-3xl mx-auto bg-white/95 backdrop-blur-xl rounded-[26px] p-3 sm:px-5 sm:py-3.5 border-2 border-violet-200 shadow-pastel flex items-center justify-between gap-3 pointer-events-auto transition-colors">
             <div class="flex items-center gap-3 min-w-0">
                 <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl border border-amber-200 shrink-0">
@@ -2529,11 +2529,13 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (typeof data.totalPoints === 'number') {
-                        state = { ...state, ...data };
+                    if (data && typeof data === 'object') {
+                        const fresh = createFreshDefaultState();
+                        state = { ...fresh, ...data };
+                        normalizeAndRolloverState(state);
                         saveState();
                         renderAll();
-                        showToast('🎉 数据恢复成功！');
+                        showToast('🎉 备份数据清洗并恢复成功！');
                     } else {
                         showToast('❌ 备份文件格式不正确');
                     }
@@ -2733,6 +2735,50 @@
                 });
             });
         }
+
+        
+        function resetCustomTaskPointsInputsToDefault() {
+            getAllConfigurableItems().forEach(function(item) {
+                var input = document.getElementById('custom-pt-' + item.id);
+                if (input) {
+                    input.value = item.points;
+                }
+            });
+            showToast('🔄 已填入系统推荐默认分值，点击保存即可生效');
+        }
+
+        // 监听网络恢复事件，自动同步离线期间的打卡数据至云端
+        window.addEventListener('online', function() {
+            updateCloudIndicator('☁️ 网络已恢复，正在同步云端...');
+            pushStateToCloud();
+            showToast('🌐 网络已恢复，离线打卡数据已自动同步');
+        });
+
+        window.addEventListener('offline', function() {
+            updateCloudIndicator('💾 处于离线状态 (已存本地)', false);
+            showToast('📶 当前处于离线状态，打卡已安全保存在本地');
+        });
+
+        // 键盘 Enter 快捷提交支持
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const active = document.activeElement;
+                if (!active) return;
+                if (active.id === 'parent-settle-pin') {
+                    e.preventDefault();
+                    confirmSettle();
+                } else if (active.id === 'reward-pin-input') {
+                    e.preventDefault();
+                    saveNewReward();
+                } else if (active.id === 'adjust-pin-input') {
+                    e.preventDefault();
+                    confirmManualAdjust();
+                } else if (active.id === 'space-id-input') {
+                    e.preventDefault();
+                    switchFamilySpace();
+                }
+            }
+        });
 
         window.onload = function() {
             loadState();
