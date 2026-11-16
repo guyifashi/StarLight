@@ -540,9 +540,9 @@
                             <p class="text-xs text-[#7E7494] font-bold">完成阅读一本书 (+150分) 或学科加练，点击可填写书名/成果备注！</p>
                         </div>
                     </div>
-                    <span id="group-pill-bonus" class="text-xs font-extrabold text-amber-800 bg-amber-100 border-2 border-amber-300 px-3 py-1 rounded-full shadow-xs">
-                        🔥 阅读整本书 +150 分
-                    </span>
+                    <button type="button" onclick="openAddBonusTaskModal()" id="btn-add-bonus-task" class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition border flex items-center gap-1.5 shadow-2xs bg-amber-100 hover:bg-amber-200 text-amber-900 border-amber-300 cursor-pointer active:scale-95">
+                        <span>✨ 发布新悬赏任务</span>
+                    </button>
                 </div>
                 <div id="grid-bonus" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
@@ -625,6 +625,80 @@
                 <span>✨</span>
                 <span id="btn-settle-text">家长最终核算</span>
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL 1B: ADD CUSTOM BONUS TASK -->
+    <div id="modal-add-bonus-task" onclick="if(event.target === this) closeModal('modal-add-bonus-task')" class="fixed inset-0 z-50 bg-[#2E2545]/45 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-[32px] max-w-lg w-full border-2 border-amber-200 shadow-pastel animate-pop max-h-[88vh] flex flex-col overflow-hidden">
+            <!-- 1. 固定顶部 Header -->
+            <div class="px-6 py-4 border-b-2 border-dashed border-amber-100 flex items-center justify-between shrink-0 bg-white">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl border border-amber-200 shrink-0">✨</span>
+                    <div>
+                        <h3 class="font-black text-[#2E2545] text-lg">发布新悬赏任务</h3>
+                        <p class="text-xs font-bold text-[#7E7494]">设立高阶挑战或阶段突破，完成可赢取悬赏积分</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modal-add-bonus-task')" class="w-8 h-8 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 flex items-center justify-center font-black transition cursor-pointer">✕</button>
+            </div>
+
+            <!-- 2. 内部独立滚动区域 Body -->
+            <div class="p-6 overflow-y-auto space-y-4 flex-1 min-h-0">
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1.5">🎯 挑选悬赏任务图标 (Emoji)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="add-bonus-icon-input" value="🎯" maxlength="2" class="w-14 text-center text-2xl py-2 rounded-2xl border-2 border-amber-200 bg-amber-50/40 font-bold focus:outline-none focus:border-amber-400">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" onclick="setBonusIcon('🎯')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🎯</button>
+                            <button type="button" onclick="setBonusIcon('🏆')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🏆</button>
+                            <button type="button" onclick="setBonusIcon('🚀')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🚀</button>
+                            <button type="button" onclick="setBonusIcon('🎨')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🎨</button>
+                            <button type="button" onclick="setBonusIcon('🧪')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🧪</button>
+                            <button type="button" onclick="setBonusIcon('🎻')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🎻</button>
+                            <button type="button" onclick="setBonusIcon('🏊')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">🏊</button>
+                            <button type="button" onclick="setBonusIcon('💡')" class="w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-lg flex items-center justify-center transition cursor-pointer">💡</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-extrabold text-[#5E5475] block">📋 悬赏挑战名称 <span class="text-rose-500">*</span></label>
+                        <span id="add-bonus-title-count" class="text-[11px] font-bold text-amber-600">0/20字</span>
+                    </div>
+                    <input type="text" id="add-bonus-title-input" maxlength="20" oninput="updateBonusTitleCount()" placeholder="例如：独立拼装千片积木模型 / 背诵《长恨歌》" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-200 text-sm font-bold bg-amber-50/40 focus:bg-white focus:outline-none focus:border-amber-400 transition">
+                </div>
+
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">📝 挑战要求与核验标准 (选填)</label>
+                    <input type="text" id="add-bonus-desc-input" placeholder="例如：结构完整且能向全家演示工作原理" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-200 text-sm font-bold bg-amber-50/40 focus:bg-white focus:outline-none focus:border-amber-400 transition">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">💎 悬赏奖励积分 (分) <span class="text-rose-500">*</span></label>
+                        <input type="number" id="add-bonus-points-input" value="50" min="1" max="500" step="1" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-200 text-sm font-black bg-amber-50/40 focus:bg-white focus:outline-none focus:border-amber-400 transition text-[#2E2545]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-extrabold text-[#5E5475] block mb-1">🔑 家长 PIN 码 <span class="text-rose-500">*</span></label>
+                        <input type="password" id="add-bonus-pin-input" maxlength="4" inputmode="numeric" placeholder="默认 1234" class="w-full px-3 py-2.5 rounded-2xl border-2 border-amber-200 text-sm text-center tracking-widest font-black bg-amber-50/40 focus:bg-white focus:outline-none focus:border-amber-400 transition text-[#2E2545]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-extrabold text-[#5E5475] block mb-1">💬 打卡时提示文字 (选填)</label>
+                    <input type="text" id="add-bonus-prompt-input" placeholder="例如：写下今天完成挑战的成果或心得吧：" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 focus:bg-white focus:outline-none focus:border-amber-300 transition">
+                </div>
+
+                <p id="add-bonus-error" class="text-xs font-extrabold text-rose-600 hidden text-center"></p>
+            </div>
+
+            <!-- 3. 固定底部 Footer -->
+            <div class="px-6 py-4 border-t-2 border-dashed border-amber-100 bg-white flex gap-3 shrink-0">
+                <button type="button" onclick="closeModal('modal-add-bonus-task')" class="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-extrabold text-xs transition cursor-pointer">取消</button>
+                <button type="button" onclick="submitAddBonusTask()" class="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-black text-xs shadow-sm hover:opacity-95 transition cursor-pointer">✨ 确认发布悬赏</button>
+            </div>
         </div>
     </div>
 
@@ -1143,6 +1217,12 @@
             { id: 'special_neat', group: 'settle_bonus', title: '卷面书写工整暴击奖', desc: '字迹端正清爽，主课错题订正认真到位', points: 1.5, icon: '✍️', color: 'sakura' }
         ];
 
+        function getAllActiveTasks(targetState) {
+            const s = targetState || (typeof state !== 'undefined' ? state : null);
+            const customs = (s && Array.isArray(s.customBonusTasks)) ? s.customBonusTasks : [];
+            return [...TASKS, ...customs];
+        }
+
         function getSpecialBonusPoints(key, defaultPts = 1.5) {
             if (state && state.customTaskPoints && state.customTaskPoints[key] !== undefined) {
                 const val = Number(state.customTaskPoints[key]);
@@ -1152,7 +1232,7 @@
         }
 
         function getAllConfigurableItems() {
-            return [...TASKS, ...SPECIAL_BONUSES];
+            return [...getAllActiveTasks(), ...SPECIAL_BONUSES];
         }
 
         const DEFAULT_REWARDS = [
@@ -1217,7 +1297,7 @@
 
         function createFreshDefaultState() {
             const checks = {};
-            TASKS.forEach(t => { checks[t.id] = { checked: false, note: '' }; });
+            getAllActiveTasks().forEach(t => { checks[t.id] = { checked: false, note: '' }; });
             return {
                 theme: 'girl',
                 studentName: '星光少女成长打卡站',
@@ -1234,13 +1314,15 @@
                 rewards: JSON.parse(JSON.stringify(DEFAULT_REWARDS)),
                 history: [],
                 customTaskPoints: {},
+                customBonusTasks: [],
                 updatedAt: 0
             };
         }
 
         function normalizeAndRolloverState(targetState) {
+            if (!Array.isArray(targetState.customBonusTasks)) targetState.customBonusTasks = [];
             if (!targetState.todayChecks) targetState.todayChecks = {};
-            TASKS.forEach(t => {
+            getAllActiveTasks(targetState).forEach(t => {
                 if (!targetState.todayChecks[t.id]) {
                     targetState.todayChecks[t.id] = { checked: false, note: '' };
                 }
@@ -1261,7 +1343,7 @@
                     targetState.todaySpeedBonus = !!todayRecord.speedBonus;
                     targetState.todayNeatBonus = !!todayRecord.neatBonus;
                 } else {
-                    TASKS.forEach(t => { targetState.todayChecks[t.id] = { checked: false, note: '' }; });
+                    getAllActiveTasks(targetState).forEach(t => { targetState.todayChecks[t.id] = { checked: false, note: '' }; });
                     targetState.todaySpeedBonus = false;
                     targetState.todayNeatBonus = false;
                 }
@@ -1279,7 +1361,7 @@
         }
 
         function getEffectiveTasks() {
-            return TASKS.map(t => ({
+            return getAllActiveTasks().map(t => ({
                 ...t,
                 points: getTaskPoints(t)
             }));
@@ -1671,8 +1753,6 @@
             if (pSelfstudy) pSelfstudy.textContent = `拔高必做 · 共 ${selfstudyTotal} 分`;
             const pHabit = document.getElementById('group-pill-habit');
             if (pHabit) pHabit.textContent = `习惯必做 · +${habitTotal} 分`;
-            const pBonus = document.getElementById('group-pill-bonus');
-            if (pBonus) pBonus.textContent = `进阶大挑战 · 最高 +${maxBonus} 分`;
 
             const colorStyles = {
                 sky: {
@@ -1741,6 +1821,13 @@
                         <p class="text-xs font-bold text-[#7E7494] mt-2.5 leading-relaxed line-clamp-2">${escapeHtml(task.desc)}</p>
                     `;
                 } else {
+                    const customBadgeHtml = task.isCustom
+                        ? `<span class="ml-1.5 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">家长自定</span>`
+                        : '';
+                    const customDeleteHtml = task.isCustom
+                        ? `<button type="button" title="删除此悬赏任务" onclick="deleteCustomBonusTask('${task.id}', event)" class="w-6 h-6 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs flex items-center justify-center transition cursor-pointer shrink-0 ml-1">✕</button>`
+                        : '';
+
                     card.innerHTML = `
                         <div class="flex items-start justify-between gap-3 my-auto">
                             <div class="flex items-start gap-3 min-w-0">
@@ -1748,14 +1835,20 @@
                                     ${isChecked ? checkIconHtml : task.icon}
                                 </div>
                                 <div class="min-w-0">
-                                    <h3 class="font-black text-sm sm:text-base ${isChecked ? 'text-emerald-950' : 'text-[#2E2545]'} leading-snug">${escapeHtml(task.title)}</h3>
+                                    <h3 class="font-black text-sm sm:text-base ${isChecked ? 'text-emerald-950' : 'text-[#2E2545]'} leading-snug flex items-center flex-wrap">
+                                        <span>${escapeHtml(task.title)}</span>
+                                        ${customBadgeHtml}
+                                    </h3>
                                     <p class="text-xs font-bold text-[#7E7494] mt-0.5 leading-relaxed">${escapeHtml(task.desc)}</p>
                                     ${noteBadgeHtml}
                                 </div>
                             </div>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-black border shrink-0 ${isChecked ? 'bg-emerald-500 text-white border-emerald-500' : st.badge}">
-                                +${task.points}分
-                            </span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-black border ${isChecked ? 'bg-emerald-500 text-white border-emerald-500' : st.badge}">
+                                    +${task.points}分
+                                </span>
+                                ${customDeleteHtml}
+                            </div>
                         </div>
                     `;
                 }
@@ -1764,7 +1857,7 @@
         }
 
         function handleTaskClick(taskId, event) {
-            const rawTask = TASKS.find(t => t.id === taskId);
+            const rawTask = getAllActiveTasks().find(t => t.id === taskId);
             if (!rawTask) return;
             const task = { ...rawTask, points: getTaskPoints(rawTask) };
             const entry = state.todayChecks[taskId] || { checked: false, note: '' };
@@ -1807,7 +1900,7 @@
 
         function confirmBonusTask() {
             if (!currentBonusTaskId) return;
-            const rawTask = TASKS.find(t => t.id === currentBonusTaskId);
+            const rawTask = getAllActiveTasks().find(t => t.id === currentBonusTaskId);
             const pts = rawTask ? getTaskPoints(rawTask) : 15;
             const noteVal = document.getElementById('bonus-note-input').value.trim();
             state.todayChecks[currentBonusTaskId] = {
@@ -1820,6 +1913,112 @@
             fireConfetti(45);
             renderAll();
             showToast(`🌟 进阶大挑战打卡成功 (+${pts}分)！`);
+        }
+
+        function openAddBonusTaskModal() {
+            document.getElementById('add-bonus-icon-input').value = '🎯';
+            document.getElementById('add-bonus-title-input').value = '';
+            document.getElementById('add-bonus-desc-input').value = '';
+            document.getElementById('add-bonus-points-input').value = '50';
+            document.getElementById('add-bonus-pin-input').value = '';
+            document.getElementById('add-bonus-prompt-input').value = '';
+            const errEl = document.getElementById('add-bonus-error');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+            updateBonusTitleCount();
+            openModal('modal-add-bonus-task');
+            setTimeout(() => {
+                const el = document.getElementById('add-bonus-title-input');
+                if (el) el.focus();
+            }, 100);
+        }
+
+        function setBonusIcon(emoji) {
+            const input = document.getElementById('add-bonus-icon-input');
+            if (input) input.value = emoji;
+        }
+
+        function updateBonusTitleCount() {
+            const el = document.getElementById('add-bonus-title-input');
+            const countEl = document.getElementById('add-bonus-title-count');
+            if (el && countEl) {
+                const len = el.value.length;
+                countEl.textContent = `${len}/20字`;
+                countEl.className = len >= 20 ? 'text-[11px] font-bold text-rose-500' : 'text-[11px] font-bold text-amber-600';
+            }
+        }
+
+        function submitAddBonusTask() {
+            const icon = (document.getElementById('add-bonus-icon-input').value || '').trim() || '🎯';
+            const title = (document.getElementById('add-bonus-title-input').value || '').trim();
+            const desc = (document.getElementById('add-bonus-desc-input').value || '').trim();
+            const ptsRaw = parseFloat(document.getElementById('add-bonus-points-input').value);
+            const pin = (document.getElementById('add-bonus-pin-input').value || '').trim();
+            const promptText = (document.getElementById('add-bonus-prompt-input').value || '').trim();
+            const errEl = document.getElementById('add-bonus-error');
+
+            if (!title) {
+                errEl.textContent = '❌ 请输入悬赏挑战名称';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (isNaN(ptsRaw) || ptsRaw <= 0 || ptsRaw > 500) {
+                errEl.textContent = '❌ 悬赏积分必须在 1 到 500 分之间';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (pin !== state.pin) {
+                errEl.textContent = '❌ 家长 PIN 码不正确（初始默认为 1234）';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            const cleanPts = Math.round(ptsRaw * 10) / 10;
+            const newTask = {
+                id: 'task_bonus_' + Date.now(),
+                group: 'bonus',
+                title: title,
+                desc: desc || '家长设立的特别进阶挑战悬赏',
+                points: cleanPts,
+                icon: icon,
+                color: 'butter',
+                prompt: promptText || '写下今天完成挑战的成果或心得吧（选填）：',
+                isCustom: true,
+                createdAt: Date.now()
+            };
+
+            if (!Array.isArray(state.customBonusTasks)) state.customBonusTasks = [];
+            state.customBonusTasks.push(newTask);
+            if (!state.todayChecks) state.todayChecks = {};
+            state.todayChecks[newTask.id] = { checked: false, note: '' };
+
+            saveState();
+            closeModal('modal-add-bonus-task');
+            renderAll();
+            playSound('fanfare');
+            fireConfetti(60);
+            showToast(`🎉 成功发布新悬赏任务「${title}」（+${cleanPts}分）！`);
+        }
+
+        function deleteCustomBonusTask(taskId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const pin = window.prompt('请输入家长 PIN 码确认删除该悬赏任务：');
+            if (pin === null) return;
+            if (pin.trim() !== state.pin) {
+                showToast('❌ 家长 PIN 码错误，删除已取消');
+                return;
+            }
+
+            state.customBonusTasks = (state.customBonusTasks || []).filter(t => t.id !== taskId);
+            if (state.todayChecks) delete state.todayChecks[taskId];
+            if (state.customTaskPoints) delete state.customTaskPoints[taskId];
+
+            saveState();
+            renderAll();
+            playSound('uncheck');
+            showToast('🗑️ 已删除该悬赏任务');
         }
 
         function openSettlementModal() {
@@ -2517,7 +2716,7 @@
                 return;
             }
 
-            TASKS.forEach(t => {
+            getAllActiveTasks().forEach(t => {
                 state.todayChecks[t.id] = { checked: false, note: '' };
             });
             state.todaySpeedBonus = false;
@@ -2793,6 +2992,9 @@
                 } else if (active.id === 'adjust-pin-input') {
                     e.preventDefault();
                     confirmManualAdjust();
+                } else if (active.id === 'add-bonus-pin-input') {
+                    e.preventDefault();
+                    submitAddBonusTask();
                 } else if (active.id === 'space-id-input') {
                     e.preventDefault();
                     switchFamilySpace();
